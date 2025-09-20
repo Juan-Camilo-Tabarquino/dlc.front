@@ -1,0 +1,26 @@
+/* styles/scroll-bar.module.css */
+
+/* Barra de desplazamiento en Firefox */
+.scrollContainer {
+    scrollbar-width: thin; /* O 'auto' para la barra de desplazamiento por defecto */
+    scrollbar-color: #001529 #e0e0e0; /* Color de la barra y del fondo */
+  }
+  
+  /* Barra de desplazamiento en Webkit (Chrome, Safari) */
+  .scrollContainer::-webkit-scrollbar {
+    width: 8px; /* Ancho de la barra de desplazamiento */
+  }
+  
+  .scrollContainer::-webkit-scrollbar-track {
+    background: #e0e0e0; /* Fondo de la pista de desplazamiento */
+  }
+  
+  .scrollContainer::-webkit-scrollbar-thumb {
+    background: #001529; /* Color del pulgar de la barra de desplazamiento */
+    border-radius: 4px; /* Esquinas redondeadas del pulgar */
+  }
+  
+  .scrollContainer::-webkit-scrollbar-thumb:hover {
+    background: #1677ff; /* Color cuando el pulgar está en hover */
+  }
+  
