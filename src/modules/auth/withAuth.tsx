@@ -6,15 +6,18 @@ import Unauthorized from '@/pages/unauthorized';
 import useAuth from './hooks/useAuth';
 import useRole from '../role/hooks/useRole';
 
-const withAuth = <T, >(
-  Componente: NextPage<T>,
-  allowedRoles: string[],
-) => (props: T) => {
+const withAuth =
+  <T,>(Componente: NextPage<T>, allowedRoles: string[]) =>
+  // eslint-disable-next-line react/display-name
+  (props: T) => {
     const { push } = useRouter();
     const { isAuthenticated, checkAuth, currentUser } = useAuth();
     const [isLoading, setIsLoading] = useState(true);
     const { fetchRoles, roles: rolesDB } = useRole();
-    const userRoles = filter(rolesDB, (r) => Number(r.id) === Number(currentUser.role));
+    const userRoles = filter(
+      rolesDB,
+      (r) => Number(r.id) === Number(currentUser.role),
+    );
 
     useEffect(() => {
       const verifyAuth = async () => {
@@ -38,8 +41,8 @@ const withAuth = <T, >(
     }
 
     if (some(userRoles, (r) => allowedRoles.includes(r.name))) {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       return <Componente {...props} />;
     }
     return <Unauthorized />;

@@ -1,27 +1,21 @@
 import InputNumber from '@/commons/InputComponents/Number';
 import Select from '@/commons/InputComponents/Select';
 import InputText from '@/commons/InputComponents/Text';
-import type {
-  Company, NewUser, Role,
-} from '@/types';
+import type { Company, NewUser, Role } from '@/types';
 import { mapToSelectOption } from '@/utils/utils';
-import {
-  Button, Col, Form, Row,
-} from 'antd';
-import {
-  inRange, isEqual, isNaN,
-} from 'lodash';
+import { Button, Col, Form, Row } from 'antd';
+import { inRange, isEqual, isNaN } from 'lodash';
 import { useEffect } from 'react';
 
 const { useForm } = Form;
 
 type UserFormProps = {
-    initialvalues: Partial<NewUser>;
-    onSubmit: (data: Partial<NewUser>) => void;
-    companies: Company[];
-    roles: Role[];
-    isEdit: boolean;
-}
+  initialvalues: Partial<NewUser>;
+  onSubmit: (data: Partial<NewUser>) => void;
+  companies: Company[];
+  roles: Role[];
+  isEdit: boolean;
+};
 
 export default function UserForm({
   initialvalues,
@@ -32,11 +26,13 @@ export default function UserForm({
 }: UserFormProps) {
   const [form] = useForm();
 
-  const isValidEmail = (str: string): boolean => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(str);
+  const isValidEmail = (str: string): boolean =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(str);
   const transformInital = {
     ...initialvalues,
     role: initialvalues.role
-      ? roles.find((r) => r.id.toString() === initialvalues.role?.toString())?.id
+      ? roles.find((r) => r.id.toString() === initialvalues.role?.toString())
+          ?.id
       : undefined,
   };
 
@@ -90,11 +86,15 @@ export default function UserForm({
                   validator: () => {
                     const phone = getFieldValue(['phone']) as string;
                     if (isNaN(Number(phone))) {
-                      return Promise.reject(new Error('En el campo celular solo pueden ir numeros'));
+                      return Promise.reject(
+                        new Error('En el campo celular solo pueden ir numeros'),
+                      );
                     }
 
                     if (!inRange(phone.length, 10, 11)) {
-                      return Promise.reject(new Error('En el campo celular debe tener 10 digitos'));
+                      return Promise.reject(
+                        new Error('En el campo celular debe tener 10 digitos'),
+                      );
                     }
                     return Promise.resolve();
                   },
@@ -121,7 +121,9 @@ export default function UserForm({
                     const cedula = getFieldValue(['cedula']) as string;
 
                     if (isNaN(Number(cedula))) {
-                      return Promise.reject(new Error('En el campo cedula solo pueden ir numeros'));
+                      return Promise.reject(
+                        new Error('En el campo cedula solo pueden ir numeros'),
+                      );
                     }
                     return Promise.resolve();
                   },
@@ -148,7 +150,9 @@ export default function UserForm({
                     const email = getFieldValue(['email']) as string;
 
                     if (!isValidEmail(email)) {
-                      return Promise.reject(new Error('El correo no es válido'));
+                      return Promise.reject(
+                        new Error('El correo no es válido'),
+                      );
                     }
                     return Promise.resolve();
                   },
@@ -181,21 +185,19 @@ export default function UserForm({
           />
         </Col>
         {!isEdit && (
-        <Col span={12}>
-          <Select
-            name="company"
-            conjunto={mapToSelectOption(companies, 'name')}
-            label="Compañía"
-            isRequired
-            selectProps={{ placeholder: 'Selecciona una compañia' }}
-          />
-        </Col>
+          <Col span={12}>
+            <Select
+              name="company"
+              conjunto={mapToSelectOption(companies, 'name')}
+              label="Compañía"
+              isRequired
+              selectProps={{ placeholder: 'Selecciona una compañia' }}
+            />
+          </Col>
         )}
-
       </Row>
       <Row gutter={16}>
-        {
-          !isEdit && (
+        {!isEdit && (
           <>
             <Col span={12}>
               <InputText
@@ -214,14 +216,22 @@ export default function UserForm({
                     ({ getFieldValue }) => ({
                       validator: () => {
                         const repass = getFieldValue(['passwordConfirm']);
-                        const currentPass = getFieldValue(['password']) as string;
+                        const currentPass = getFieldValue([
+                          'password',
+                        ]) as string;
 
                         if (currentPass.length < 8) {
-                          return Promise.reject(new Error('Las Contrasena no tiene el numero de caracteres necesario (8 caracteres)'));
+                          return Promise.reject(
+                            new Error(
+                              'Las Contrasena no tiene el numero de caracteres necesario (8 caracteres)',
+                            ),
+                          );
                         }
 
                         if (!isEqual(repass, currentPass)) {
-                          return Promise.reject(new Error('Las Contrasenas no coinciden'));
+                          return Promise.reject(
+                            new Error('Las Contrasenas no coinciden'),
+                          );
                         }
                         return Promise.resolve();
                       },
@@ -243,8 +253,7 @@ export default function UserForm({
               />
             </Col>
           </>
-          )
-        }
+        )}
       </Row>
       <Row gutter={16}>
         <Col span={12}>
@@ -261,10 +270,7 @@ export default function UserForm({
         </Col>
       </Row>
       <Row justify="end">
-        <Button
-          type="primary"
-          htmlType="submit"
-        >
+        <Button type="primary" htmlType="submit">
           Guardar
         </Button>
       </Row>

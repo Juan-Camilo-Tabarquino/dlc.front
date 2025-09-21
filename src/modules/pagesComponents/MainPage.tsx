@@ -10,7 +10,7 @@ import {
   listLocationsByDate,
   listLocationsPoint,
 } from '@/store/location/locationSlice';
-import { selectAlert } from '@/store/alert/alertSlice';
+import { selectAlert } from '@/store/alert/alert.feature';
 import { map } from 'lodash';
 import CardUser from '../user/CardUser';
 import useUser from '../user/hooks/useUser';
@@ -26,7 +26,22 @@ const { Content, Sider, Footer } = Layout;
 
 const MainPage: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-
+  const { currentUser } = useSelector((state: RootState) => state.auth);
+  const {
+    // fetchAlertById,
+    // editAlertStatus,
+    // fetchAlertNoRead,
+    // notifyAlertMobile,
+    alertsNoRead,
+    changeHistoryAlert,
+    // changeAlertStatus,
+    historyAlert,
+    sctAlert,
+    alerts,
+    showAlert,
+  } = useAlert({
+    currentUser,
+  });
   const [searchTerm, setSearchTerm] = useState('');
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [error, setError] = useState<string | null>(null);
@@ -36,11 +51,8 @@ const MainPage: React.FC = () => {
     useUser();
   const { locationsByDate, locationSelect, locationHistoryByUser } =
     useLocation();
-  const { fetchAlert, alerts, sctAlert, changeHistoryAlert, historyAlert } =
-    useAlert();
   const [showSelectTrip, setShowSelectTrip] = useState(false);
   const [showSelectAlert, setShowSelectAlert] = useState(false);
-  const { currentUser } = useSelector((state: RootState) => state.auth);
   const { startLogout } = useAuth();
   const [showUsers, setShowUsers] = useState(true);
   const dispatch = useDispatch();
@@ -52,26 +64,25 @@ const MainPage: React.FC = () => {
       u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       u.cedula.toString().includes(searchTerm),
   );
-  const { fetchAlertById, editAlertStatus, notifyAlertMobile } = useAlert();
-  const showAlert = async ({
-    id,
-    iduser,
-    date,
-  }: {
-    id: number;
-    iduser: number;
-    date: string;
-  }) => {
-    try {
-      await fetchAlertById(id);
-      await editAlertStatus(id, 2);
-      await notifyAlertMobile(iduser, date);
-    } catch (e) {
-      message.error(
-        `Error buscando la alerta: ${e instanceof Error ? e.message : JSON.stringify(e)}`,
-      );
-    }
-  };
+  // const showAlert = async ({
+  //   id,
+  //   iduser,
+  //   date,
+  // }: {
+  //   id: number;
+  //   iduser: number;
+  //   date: string;
+  // }) => {
+  //   try {
+  //     await fetchAlertById(id);
+  //     await changeAlertStatus({ id, status: 2 });
+  //     await notifyAlertMobile(iduser, date);
+  //   } catch (e) {
+  //     message.error(
+  //       `Error buscando la alerta: ${e instanceof Error ? e.message : JSON.stringify(e)}`,
+  //     );
+  //   }
+  // };
   const onSubmit = async (data: FetchHistory) => {
     try {
       const firstDate = `${dayjs(data.recorridoI).format('YYYY-MM-DD')}T00:00:00Z`;
@@ -91,12 +102,6 @@ const MainPage: React.FC = () => {
       setSelectedUser(null);
     }
   }, [showSelectAlert, showAllPoints, showSelectTrip, showUsers, sctAlert]);
-
-  useEffect(() => {
-    if (currentUser?.company?.id) {
-      fetchAlert(currentUser?.company?.id);
-    }
-  }, []);
 
   useEffect(() => {
     if (!showSelectTrip) {
@@ -146,8 +151,9 @@ const MainPage: React.FC = () => {
       <HeaderComponent
         user={currentUser}
         onLogout={startLogout}
+        alertsNoRead={alertsNoRead}
+        showAlert={showAlert}
         historyNotication={() => changeHistoryAlert(true)}
-        detailsNotication={() => changeHistoryAlert(false)}
       />
       <Layout>
         <Sider

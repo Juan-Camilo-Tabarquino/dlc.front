@@ -95,7 +95,9 @@ export default function useUser() {
 
   const editPasswordUser = async (id: number, passsword: string) => {
     try {
-      const res = await put(`${BASE_URL}/users/updatepassword/${id}`, { newPassword: passsword });
+      const res = await put(`${BASE_URL}/users/updatepassword/${id}`, {
+        newPassword: passsword,
+      });
       return res;
     } catch (error) {
       return error;

@@ -37,7 +37,11 @@ const UserCards = () => {
   const { roles } = useSelector((state: RootState) => state.roles);
   const {
     fetchUsersWithLocation,
-    users, activeUser, addNewUser, editUser, editPasswordUser,
+    users,
+    activeUser,
+    addNewUser,
+    editUser,
+    editPasswordUser,
   } = useUser();
 
   const [refreshTrigger, setRefreshTrigger] = useState(false);
@@ -61,11 +65,12 @@ const UserCards = () => {
       .toLowerCase()
       .includes(searchValue.toLowerCase());
 
-    const matchesCompany = user.company && typeof user.company.name === 'string'
-      ? user.company.name
-        .toLowerCase()
-        .includes(companySearchValue.toLowerCase())
-      : false;
+    const matchesCompany =
+      user.company && typeof user.company.name === 'string'
+        ? user.company.name
+            .toLowerCase()
+            .includes(companySearchValue.toLowerCase())
+        : false;
 
     const noNameFilter = !searchValue;
     const noCompanyFilter = !companySearchValue;
@@ -221,31 +226,34 @@ const UserCards = () => {
           />
         </Tooltip>
         <Modal
-          // eslint-disable-next-line no-nested-ternary
-          title={isPassword ? 'Cambiar Contraseña' : isEdit ? 'Editar Usuario' : 'Añadir Nuevo Usuario'}
+          title={
+            isPassword
+              ? 'Cambiar Contraseña'
+              : isEdit
+                ? 'Editar Usuario'
+                : 'Añadir Nuevo Usuario'
+          }
           open={isModalVisible}
           onCancel={handleCancel}
           footer={null}
         >
-          {
-            isPassword ? (
-              <UserChagePasswordForm
-                initialValues={{ id: 'id' in selectedUser ? (selectedUser as User).id : undefined }}
-                onSubmit={onSubmit}
-              />
-            )
-              : (
-                <UserForm
-                  initialvalues={selectedUser}
-                  isEdit={isEdit}
-                  onSubmit={onSubmit}
-                  companies={companies}
-                  roles={roles}
-                />
-              )
-
-          }
-
+          {isPassword ? (
+            <UserChagePasswordForm
+              initialValues={{
+                id:
+                  'id' in selectedUser ? (selectedUser as User).id : undefined,
+              }}
+              onSubmit={onSubmit}
+            />
+          ) : (
+            <UserForm
+              initialvalues={selectedUser}
+              isEdit={isEdit}
+              onSubmit={onSubmit}
+              companies={companies}
+              roles={roles}
+            />
+          )}
         </Modal>
       </Col>
     </App>

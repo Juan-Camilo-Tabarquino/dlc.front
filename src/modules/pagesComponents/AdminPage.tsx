@@ -43,7 +43,11 @@ const AdminPage: React.FC = () => {
       }}
     >
       <Layout>
-        <HeaderComponent user={currentUser} onLogout={startLogout} />
+        <HeaderComponent
+          user={currentUser}
+          onLogout={startLogout}
+          showAlert={() => {}}
+        />
         <Layout>
           <Tabs
             defaultActiveKey="Usuarios"

@@ -7,11 +7,10 @@ import { map } from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
 
 const { get } = axios;
-const rolesName : Record<string, string> = {
+const rolesName: Record<string, string> = {
   admin: 'Administrador',
   movil: 'Móvil',
   superadmin: 'Super Administrador',
-
 };
 
 export default function useRole() {

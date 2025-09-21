@@ -1,15 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import {
-  Card, Col,
-  Row, Input,
-  Button, Modal,
-  Pagination, Tooltip,
-  Switch, message,
-  Typography, Popconfirm,
+  Card,
+  Col,
+  Row,
+  Input,
+  Button,
+  Modal,
+  Pagination,
+  Tooltip,
+  Switch,
+  message,
+  Typography,
+  Popconfirm,
   App,
 } from 'antd';
 import {
-  EditOutlined, UserOutlined, PlusOutlined, ExclamationCircleOutlined,
+  EditOutlined,
+  UserOutlined,
+  PlusOutlined,
+  ExclamationCircleOutlined,
 } from '@ant-design/icons';
 import useCompany from '@/modules/company/hooks/useCompany';
 import CompanyForm from '@/modules/company/CompanyForm';
@@ -24,7 +33,13 @@ const CompanyCards = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(9);
-  const { companies, fetchCompanies, activeCompany, addNewCompany, editCompany } = useCompany();
+  const {
+    companies,
+    fetchCompanies,
+    activeCompany,
+    addNewCompany,
+    editCompany,
+  } = useCompany();
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [refreshTrigger, setRefreshTrigger] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<Company | object>({});
@@ -37,8 +52,8 @@ const CompanyCards = () => {
     setSearchValue(value);
   };
 
-  const filteredCompanies = companies.filter(
-    (company) => company.name.toLowerCase().includes(searchValue.toLowerCase()),
+  const filteredCompanies = companies.filter((company) =>
+    company.name.toLowerCase().includes(searchValue.toLowerCase()),
   );
 
   const handleAddUser = () => {
@@ -114,9 +129,15 @@ const CompanyCards = () => {
               <Card
                 actions={[
                   <Tooltip key={company.id} title="Editar Compañía">
-                    <EditOutlined key="edit" onClick={() => handleEditClick(company)} />
+                    <EditOutlined
+                      key="edit"
+                      onClick={() => handleEditClick(company)}
+                    />
                   </Tooltip>,
-                  <Tooltip key={company.id} title="Deshabilitar/ habilitar compañía">
+                  <Tooltip
+                    key={company.id}
+                    title="Deshabilitar/ habilitar compañía"
+                  >
                     <Popconfirm
                       title="¿Estás seguro de cambiar el estado de esta compañía?"
                       icon={<ExclamationCircleOutlined />}
@@ -129,7 +150,9 @@ const CompanyCards = () => {
                         checked={company.active}
                         onChange={() => {}}
                         style={{
-                          backgroundColor: company.active ? '#1890ff' : '#d9d9d9',
+                          backgroundColor: company.active
+                            ? '#1890ff'
+                            : '#d9d9d9',
                           borderColor: company.active ? '#1890ff' : '#d9d9d9',
                         }}
                       />

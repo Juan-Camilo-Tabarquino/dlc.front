@@ -10,9 +10,14 @@ type SelectUserProps = {
   onChange: (value: string) => void;
   options: OptionType[];
   disabled?: boolean;
-}
+};
 
-const SelectUser = ({ value, onChange, options, disabled = false }: SelectUserProps) => (
+const SelectUser = ({
+  value,
+  onChange,
+  options,
+  disabled = false,
+}: SelectUserProps) => (
   <>
     <Title level={5}>Seleccionar usuario</Title>
     <Select

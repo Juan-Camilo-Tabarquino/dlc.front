@@ -1,25 +1,15 @@
-/* eslint-disable max-len */
-import {
-  FC, useEffect, useRef,
-} from 'react';
+import { FC, useEffect, useRef } from 'react';
 import { fromLonLat } from 'ol/proj';
-import {
-  Map, View, Feature,
-} from 'ol';
+import { Map, View, Feature } from 'ol';
 import TileLayer from 'ol/layer/Tile';
 import 'ol/ol.css';
 import XYZ from 'ol/source/XYZ';
 import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
-import {
-  Style, Icon, Stroke,
-} from 'ol/style';
+import { Style, Icon, Stroke } from 'ol/style';
 import Overlay from 'ol/Overlay';
 import { Point, LineString } from 'ol/geom';
-import type {
-  User, LocationByDate, RouteItem,
-  Alert,
-} from '@/types';
+import type { User, LocationByDate, RouteItem, Alert } from '@/types';
 import { isEmpty } from 'lodash';
 import { message } from 'antd';
 
@@ -27,7 +17,7 @@ type MapComponentProps = {
   showAllPoints: boolean;
   showSelectTrip: boolean;
   selectedUserNow: User | null;
-  showSelectAlert:boolean;
+  showSelectAlert: boolean;
   showTripSubmit: boolean;
   users: User[];
   locations: LocationByDate[];
@@ -45,7 +35,6 @@ const MapComponent: FC<MapComponentProps> = ({
   showTripSubmit,
   showSelectAlert,
   selectAlert,
-
 }) => {
   const mapRef = useRef<HTMLDivElement | null>(null);
   const mapInstance = useRef<Map | null>(null);
@@ -62,37 +51,51 @@ const MapComponent: FC<MapComponentProps> = ({
       mapInstance.current.removeLayer(vectorLayerRef.current);
     }
 
-    const points = usersToShow.map((user) => {
-      const { lastlocation } = user;
+    const points = usersToShow
+      .map((user) => {
+        const { lastlocation } = user;
 
-      if (
-        !lastlocation || !lastlocation.date || !lastlocation.latitude || !lastlocation.longitude
-      ) {
-        return null;
-      }
+        if (
+          !lastlocation ||
+          !lastlocation.date ||
+          !lastlocation.latitude ||
+          !lastlocation.longitude
+        ) {
+          return null;
+        }
 
-      const userDateTimeMoment = new Date(lastlocation.date);
-      const nowMoment = new Date();
+        const userDateTimeMoment = new Date(lastlocation.date);
+        const nowMoment = new Date();
 
-      const minutesDiff = Math.round((nowMoment.getTime() - userDateTimeMoment.getTime()) / (1000 * 60) - userDateTimeMoment.getTimezoneOffset());
-      let iconSrc = '/recorrido/verde.png';
-      if (minutesDiff > 240) {
-        iconSrc = '/recorrido/rojo.png';
-      } else if (minutesDiff > 5) {
-        iconSrc = '/recorrido/amarillo.png';
-      }
+        const minutesDiff = Math.round(
+          (nowMoment.getTime() - userDateTimeMoment.getTime()) / (1000 * 60) -
+            userDateTimeMoment.getTimezoneOffset(),
+        );
+        let iconSrc = '/recorrido/verde.png';
+        if (minutesDiff > 240) {
+          iconSrc = '/recorrido/rojo.png';
+        } else if (minutesDiff > 5) {
+          iconSrc = '/recorrido/amarillo.png';
+        }
 
-      const point = new Feature({ geometry: new Point(fromLonLat([lastlocation.longitude, lastlocation.latitude])) });
-      point.set('user', user);
-      point.setStyle(new Style({
-        image: new Icon({
-          src: iconSrc,
-          scale: 0.8,
-        }),
-      }));
+        const point = new Feature({
+          geometry: new Point(
+            fromLonLat([lastlocation.longitude, lastlocation.latitude]),
+          ),
+        });
+        point.set('user', user);
+        point.setStyle(
+          new Style({
+            image: new Icon({
+              src: iconSrc,
+              scale: 0.8,
+            }),
+          }),
+        );
 
-      return point;
-    }).filter((p): p is Feature<Point> => p !== null);
+        return point;
+      })
+      .filter((p): p is Feature<Point> => p !== null);
 
     const vectorSource = new VectorSource({
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -105,7 +108,10 @@ const MapComponent: FC<MapComponentProps> = ({
     vectorLayerRef.current = vectorLayer;
 
     mapInstance.current.on('pointermove', (event) => {
-      const feature = mapInstance.current?.forEachFeatureAtPixel(event.pixel, (feat) => feat);
+      const feature = mapInstance.current?.forEachFeatureAtPixel(
+        event.pixel,
+        (feat) => feat,
+      );
       if (feature) {
         const user = feature.get('user');
         if (user && overlayRef.current) {
@@ -125,13 +131,21 @@ const MapComponent: FC<MapComponentProps> = ({
 
     if (!isEmpty(points)) {
       if (selectedUserNow) {
-        mapInstance.current?.getView().setCenter(fromLonLat([
-          selectedUserNow.lastlocation.longitude, selectedUserNow.lastlocation.latitude,
-        ]));
+        mapInstance.current
+          ?.getView()
+          .setCenter(
+            fromLonLat([
+              selectedUserNow.lastlocation.longitude,
+              selectedUserNow.lastlocation.latitude,
+            ]),
+          );
         mapInstance.current?.getView().setZoom(16);
       } else {
         navigator.geolocation.getCurrentPosition((position) => {
-          const userLocation = fromLonLat([position.coords.longitude, position.coords.latitude]);
+          const userLocation = fromLonLat([
+            position.coords.longitude,
+            position.coords.latitude,
+          ]);
           mapInstance.current?.getView().setCenter(userLocation);
           mapInstance.current?.getView().setZoom(15);
         });
@@ -140,7 +154,8 @@ const MapComponent: FC<MapComponentProps> = ({
   };
 
   const showPointsHistoryOnMap = (
-    historyLocations: LocationByDate[], searchCoord?: RouteItem[],
+    historyLocations: LocationByDate[],
+    searchCoord?: RouteItem[],
   ) => {
     if (!mapInstance.current) {
       return;
@@ -151,15 +166,21 @@ const MapComponent: FC<MapComponentProps> = ({
     }
 
     if (historyLocations.length > 0) {
-      const allCoordinates = historyLocations.flatMap((day) => day.route.map((routeItem) => routeItem.coordinates));
+      const allCoordinates = historyLocations.flatMap((day) =>
+        day.route.map((routeItem) => routeItem.coordinates),
+      );
 
       if (allCoordinates.length === 1) {
         const singleCoord = allCoordinates[0];
-        const singlePoint = new Feature({ geometry: new Point(fromLonLat(singleCoord)) });
-        singlePoint.setStyle(new Style({
-          image: new Icon({ src: '/recorrido/ini.png', scale: 0.6 }),
-          zIndex: 10,
-        }));
+        const singlePoint = new Feature({
+          geometry: new Point(fromLonLat(singleCoord)),
+        });
+        singlePoint.setStyle(
+          new Style({
+            image: new Icon({ src: '/recorrido/ini.png', scale: 0.6 }),
+            zIndex: 10,
+          }),
+        );
 
         const vectorSource = new VectorSource({ features: [singlePoint] });
         const vectorLayer = new VectorLayer({ source: vectorSource });
@@ -183,27 +204,38 @@ const MapComponent: FC<MapComponentProps> = ({
         }
 
         const lineString = new LineString(coordinates);
-        const lineFeature = new Feature({ geometry: lineString.transform('EPSG:4326', 'EPSG:3857') });
+        const lineFeature = new Feature({
+          geometry: lineString.transform('EPSG:4326', 'EPSG:3857'),
+        });
 
         const startCoord = fromLonLat(coordinates[0]);
         const endCoord = fromLonLat(coordinates[coordinates.length - 1]);
 
         const startPoint = new Feature({ geometry: new Point(startCoord) });
-        startPoint.setStyle(new Style({
-          image: new Icon({ src: '/recorrido/ini.png', scale: 0.6 }),
-          zIndex: 10,
-        }));
+        startPoint.setStyle(
+          new Style({
+            image: new Icon({ src: '/recorrido/ini.png', scale: 0.6 }),
+            zIndex: 10,
+          }),
+        );
 
         const endPoint = new Feature({ geometry: new Point(endCoord) });
-        endPoint.setStyle(new Style({
-          image: new Icon({ src: '/recorrido/fin.png', scale: 0.6 }),
-          zIndex: 10,
-        }));
+        endPoint.setStyle(
+          new Style({
+            image: new Icon({ src: '/recorrido/fin.png', scale: 0.6 }),
+            zIndex: 10,
+          }),
+        );
 
-        const restPoints = coordinates.length > 2 ? coordinates.slice(1, -1) : [];
+        const restPoints =
+          coordinates.length > 2 ? coordinates.slice(1, -1) : [];
         const intermediatePoints = restPoints.map((coord, index) => {
           const point = new Feature({ geometry: new Point(fromLonLat(coord)) });
-          point.setStyle(new Style({ image: new Icon({ src: '/recorrido/inicio.png', scale: 0.1 }) }));
+          point.setStyle(
+            new Style({
+              image: new Icon({ src: '/recorrido/inicio.png', scale: 0.1 }),
+            }),
+          );
           point.set('coordinates', coord);
           point.set('time', times[index + 1]);
           point.set('date', day.date);
@@ -215,17 +247,23 @@ const MapComponent: FC<MapComponentProps> = ({
 
       if (searchCoord) {
         const searchCoord0 = searchCoord[0];
-        const searchPoint = new Feature({ geometry: new Point(fromLonLat(searchCoord0.coordinates)) });
-        searchPoint.setStyle(new Style({
-          image: new Icon({ src: '/recorrido/aqi.png', scale: 0.8 }),
-          zIndex: 20,
-        }));
+        const searchPoint = new Feature({
+          geometry: new Point(fromLonLat(searchCoord0.coordinates)),
+        });
+        searchPoint.setStyle(
+          new Style({
+            image: new Icon({ src: '/recorrido/aqi.png', scale: 0.8 }),
+            zIndex: 20,
+          }),
+        );
         searchPoint.set('coordinates', searchCoord0.coordinates);
         searchPoint.set('time', searchCoord0.time);
         searchPoint.set('date', searchCoord0.date);
         features.push(searchPoint);
 
-        mapInstance.current.getView().setCenter(fromLonLat(searchCoord0.coordinates));
+        mapInstance.current
+          .getView()
+          .setCenter(fromLonLat(searchCoord0.coordinates));
         mapInstance.current.getView().setZoom(20);
       }
 
@@ -233,7 +271,9 @@ const MapComponent: FC<MapComponentProps> = ({
 
       const vectorLayer = new VectorLayer({
         source: vectorSource,
-        style: new Style({ stroke: new Stroke({ color: '#3C86DD', width: 3 }) }),
+        style: new Style({
+          stroke: new Stroke({ color: '#3C86DD', width: 3 }),
+        }),
       });
 
       mapInstance.current.addLayer(vectorLayer);
@@ -241,11 +281,16 @@ const MapComponent: FC<MapComponentProps> = ({
 
       if (!searchCoord) {
         const extent = vectorSource.getExtent();
-        mapInstance.current.getView().fit(extent, { duration: 2000, padding: [50, 50, 50, 50] });
+        mapInstance.current
+          .getView()
+          .fit(extent, { duration: 2000, padding: [50, 50, 50, 50] });
       }
 
       mapInstance.current.on('pointermove', (event) => {
-        const feature = mapInstance.current?.forEachFeatureAtPixel(event.pixel, (feat) => feat);
+        const feature = mapInstance.current?.forEachFeatureAtPixel(
+          event.pixel,
+          (feat) => feat,
+        );
         if (feature) {
           const time = feature.get('time');
           const date = feature.get('date');
@@ -262,7 +307,9 @@ const MapComponent: FC<MapComponentProps> = ({
         }
       });
     } else if (showTripSubmit) {
-      message.warning('El usuario no tiene recorridos en las fechas solicitadas');
+      message.warning(
+        'El usuario no tiene recorridos en las fechas solicitadas',
+      );
     }
   };
 
@@ -285,7 +332,9 @@ const MapComponent: FC<MapComponentProps> = ({
         const latitude = Number(alert?.latitude);
         const longitude = Number(alert?.longitude);
 
-        const point = new Feature({ geometry: new Point(fromLonLat([longitude, latitude])) });
+        const point = new Feature({
+          geometry: new Point(fromLonLat([longitude, latitude])),
+        });
 
         point.set('alert', alert);
         point.set('selectable', false);
@@ -330,7 +379,11 @@ const MapComponent: FC<MapComponentProps> = ({
       mapInstance.current = new Map({
         target: mapRef.current,
         layers: [
-          new TileLayer({ source: new XYZ({ url: 'https://mt1.google.com/vt/lyrs=r&x={x}&y={y}&z={z}' }) }),
+          new TileLayer({
+            source: new XYZ({
+              url: 'https://mt1.google.com/vt/lyrs=r&x={x}&y={y}&z={z}',
+            }),
+          }),
         ],
         view: new View({
           center: [0, 0],
@@ -407,9 +460,7 @@ const MapComponent: FC<MapComponentProps> = ({
     }
   }, [locations, showSelectTrip, searchDateTime]);
 
-  return (
-    <div ref={mapRef} style={{ width: '100%', height: '100%' }} />
-  );
+  return <div ref={mapRef} style={{ width: '100%', height: '100%' }} />;
 };
 
 export default MapComponent;

@@ -5,9 +5,9 @@ import { isEqual } from 'lodash';
 import Image from 'next/image';
 
 type CardUserProps = {
-    user: User;
-    onClick: (user: User) => void;
-}
+  user: User;
+  onClick: (user: User) => void;
+};
 
 const CardUser: React.FC<CardUserProps> = ({ user, onClick }) => {
   const haveLastLocation = !isEqual(user.lastlocation, null);
@@ -15,8 +15,17 @@ const CardUser: React.FC<CardUserProps> = ({ user, onClick }) => {
   const hasCompleteInfo = (lastlocation: Record<string, any>): boolean => {
     if (!lastlocation) return false;
 
-    const requiredFields = ['id', 'iduser', 'latitude', 'longitude', 'date', 'nomenclature'];
-    return requiredFields.every((field) => lastlocation[field] && lastlocation[field] !== '');
+    const requiredFields = [
+      'id',
+      'iduser',
+      'latitude',
+      'longitude',
+      'date',
+      'nomenclature',
+    ];
+    return requiredFields.every(
+      (field) => lastlocation[field] && lastlocation[field] !== '',
+    );
   };
 
   let color = '/recorrido/gris.png';
@@ -29,8 +38,8 @@ const CardUser: React.FC<CardUserProps> = ({ user, onClick }) => {
     const userDateTimeMoment = new Date(user.lastlocation.date);
     const nowMoment = new Date();
     const minutesDiff = Math.round(
-      (nowMoment.getTime() - userDateTimeMoment.getTime()) / (1000 * 60)
-        - userDateTimeMoment.getTimezoneOffset(),
+      (nowMoment.getTime() - userDateTimeMoment.getTime()) / (1000 * 60) -
+        userDateTimeMoment.getTimezoneOffset(),
     );
 
     if (minutesDiff > 240) {
@@ -46,7 +55,7 @@ const CardUser: React.FC<CardUserProps> = ({ user, onClick }) => {
     <Card
       hoverable={lastLocationDate !== null}
       onClick={() => (lastLocationDate ? onClick(user) : null)}
-      title={(
+      title={
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <Image
             src={color}
@@ -57,7 +66,7 @@ const CardUser: React.FC<CardUserProps> = ({ user, onClick }) => {
           />
           {`${user.name} ${user.lastname}`}
         </div>
-      )}
+      }
       id={user.cedula.toString()}
       style={{
         backgroundColor: haveLastLocation ? undefined : '#DAE0E0',
@@ -66,11 +75,15 @@ const CardUser: React.FC<CardUserProps> = ({ user, onClick }) => {
     >
       <p>
         Ult.act:
-        { lastLocationDate ? ` ${lastLocationDate.substring(0, 10)}` : ' Sin Información'}
+        {lastLocationDate
+          ? ` ${lastLocationDate.substring(0, 10)}`
+          : ' Sin Información'}
       </p>
       <p>
         Hora:
-        {lastLocationDate ? ` ${lastLocationDate.substring(11, 16)}` : ' Sin Información'}
+        {lastLocationDate
+          ? ` ${lastLocationDate.substring(11, 16)}`
+          : ' Sin Información'}
       </p>
     </Card>
   );

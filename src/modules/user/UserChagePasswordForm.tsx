@@ -1,8 +1,6 @@
 import InputText from '@/commons/InputComponents/Text';
 import type { NewUser } from '@/types';
-import {
-  Button, Col, Form, Row,
-} from 'antd';
+import { Button, Col, Form, Row } from 'antd';
 import { isEqual } from 'lodash';
 import { useEffect } from 'react';
 
@@ -51,7 +49,9 @@ export default function UserChangePasswordForm({
 
                     if (!currentPass || currentPass.length < 8) {
                       return Promise.reject(
-                        new Error('La contraseña no tiene el número de caracteres necesario'),
+                        new Error(
+                          'La contraseña no tiene el número de caracteres necesario',
+                        ),
                       );
                     }
 
