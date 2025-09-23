@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Layout, Button, Space, Input, Row, Flex, message } from 'antd';
-import { ArrowLeftOutlined, SearchOutlined } from '@ant-design/icons';
+import { Layout, Button, Space, Row, Flex, message } from 'antd';
+import { ArrowLeftOutlined } from '@ant-design/icons';
 import { FetchHistory, User } from '@/types';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
@@ -12,15 +12,16 @@ import {
 } from '@/store/location/locationSlice';
 import { selectAlert } from '@/store/alert/alert.feature';
 import { map } from 'lodash';
-import CardUser from '../user/CardUser';
 import useUser from '../user/hooks/useUser';
 import BoxInfo from '../mapa/commons/boxInfo';
 import MapComponent from '../mapa/MapComponent';
-import SelectTrip from '../user/selectTrip';
 import useLocation from '../location/hooks/useLocation';
 import useAuth from '../auth/hooks/useAuth';
 import useAlert from '../alert/hooks/useAlert';
 import CardAlert from '../alert/CardAlert';
+import ShowUser from '../user/hooks/siderCompanent/showUser';
+import SelectedUser from '../user/hooks/siderCompanent/selectedUser';
+import SelectTripHistory from '../user/hooks/siderCompanent/showSelectTrip';
 
 const { Content, Sider, Footer } = Layout;
 
@@ -42,9 +43,10 @@ const MainPage: React.FC = () => {
   } = useAlert({
     currentUser,
   });
-  const [searchTerm, setSearchTerm] = useState('');
+
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const [showAllPoints, setShowAllPoints] = useState(true);
   const [showTripSubmit, setshowTripSubmit] = useState(false);
   const { users, fetchUsersWithLastLocation, fetchUsersWithLastLocationById } =
@@ -174,131 +176,45 @@ const MainPage: React.FC = () => {
               paddingBottom: '30px',
             }}
           >
-            {!showSelectTrip &&
-              !selectedUser &&
-              !showSelectAlert &&
-              showUsers &&
-              !historyAlert && (
-                <>
-                  <Input
-                    placeholder="Buscar por nombre o cédula"
-                    height="10vh"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    style={{ marginBottom: '10px' }}
-                    prefix={<SearchOutlined />}
-                  />
-                  <div
-                    style={{
-                      background: '#fff',
-                      overflowY: 'auto',
-                      maxHeight: '70vh',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      padding: '3%',
-                    }}
-                  >
-                    {filteredUsers.map((u, index) => (
-                      <CardUser
-                        key={index}
-                        user={u}
-                        onClick={() => {
-                          setSelectedUser(u);
-                          setShowUsers(false);
-                          setShowAllPoints(false);
-                          setShowSelectAlert(false);
-                          changeHistoryAlert(false);
-                        }}
-                      />
-                    ))}
-                  </div>
-                </>
-              )}
+            <ShowUser
+              showSelectTrip={showSelectTrip}
+              selectedUser={selectedUser}
+              showSelectAlert={showSelectAlert}
+              showUsers={showUsers}
+              historyAlert={historyAlert}
+              filteredUsers={filteredUsers}
+              setSelectedUser={setSelectedUser}
+              setShowUsers={setShowUsers}
+              setShowAllPoints={setShowAllPoints}
+              setShowSelectAlert={setShowSelectAlert}
+              changeHistoryAlert={changeHistoryAlert}
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+            />
 
-            {selectedUser &&
-              !showSelectTrip &&
-              !showUsers &&
-              !showSelectAlert &&
-              !historyAlert && (
-                <>
-                  <Button
-                    type="default"
-                    icon={<ArrowLeftOutlined />}
-                    onClick={() => {
-                      setShowAllPoints(true);
-                      setSelectedUser(null);
-                      setShowUsers(true);
-                      setShowSelectAlert(false);
-                      changeHistoryAlert(false);
-                    }}
-                  >
-                    Regresar
-                  </Button>
-                  {selectedUser && (
-                    <Row gutter={[8, 16]}>
-                      <BoxInfo
-                        span={12}
-                        title="Usuario"
-                        imgSrc="/usuario.png"
-                        text={selectedUser.username}
-                      />
-                      <BoxInfo
-                        span={12}
-                        title="Rumbo"
-                        imgSrc="/rumbo.png"
-                        text={selectedUser.lastlocation.course}
-                      />
-                      <BoxInfo
-                        span={12}
-                        title="Fecha (Ult.act)"
-                        imgSrc="/fecha.png"
-                        text={selectedUser.lastlocation.date?.substring(0, 10)}
-                      />
-                      <BoxInfo
-                        span={12}
-                        title="Hora (Ult.act)"
-                        imgSrc="/hora.png"
-                        text={selectedUser.lastlocation.date?.substring(11, 19)}
-                      />
-                      <BoxInfo
-                        span={12}
-                        title="Nomenclatura"
-                        imgSrc="/pin.png"
-                        text={selectedUser.lastlocation.nomenclature}
-                      />
-                      <BoxInfo
-                        span={12}
-                        title="Coordenadas"
-                        imgSrc="/coordenada.png"
-                        text={
-                          selectedUser.lastlocation.latitude &&
-                          selectedUser.lastlocation.longitude
-                            ? `${Number(selectedUser.lastlocation.latitude).toFixed(6)},
-                        ${Number(selectedUser.lastlocation.longitude).toFixed(6)}`
-                            : 'Coordenadas no disponibles'
-                        }
-                        googleMapsUrl={
-                          selectedUser.lastlocation.latitude &&
-                          selectedUser.lastlocation.longitude
-                            ? `https://www.google.com/maps/search/?api=1&query=${selectedUser.lastlocation.latitude},${selectedUser.lastlocation.longitude}`
-                            : '#'
-                        }
-                      />
-                    </Row>
-                  )}
-                </>
-              )}
-            {showSelectTrip &&
-              !selectedUser &&
-              !showUsers &&
-              !showSelectAlert &&
-              !historyAlert && (
-                <SelectTrip
-                  onSubmit={onSubmit}
-                  locations={locationsByDate}
-                  users={users}
-                />
-              )}
+            <SelectedUser
+              selectedUser={selectedUser}
+              showSelectTrip={showSelectTrip}
+              showUsers={showUsers}
+              showSelectAlert={showSelectAlert}
+              historyAlert={historyAlert}
+              setSelectedUser={setSelectedUser}
+              setShowUsers={setShowUsers}
+              setShowAllPoints={setShowAllPoints}
+              setShowSelectAlert={setShowSelectAlert}
+              changeHistoryAlert={changeHistoryAlert}
+            />
+
+            <SelectTripHistory
+              showSelectTrip={showSelectTrip}
+              selectedUser={selectedUser}
+              showUsers={showUsers}
+              showSelectAlert={showSelectAlert}
+              historyAlert={historyAlert}
+              users={users}
+              locationsByDate={locationsByDate}
+              onSubmit={onSubmit}
+            />
             {showSelectAlert && (
               <>
                 <Button
@@ -515,5 +431,4 @@ const MainPage: React.FC = () => {
     </Layout>
   );
 };
-
 export default MainPage;
