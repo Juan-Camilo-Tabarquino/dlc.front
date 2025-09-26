@@ -1,7 +1,7 @@
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
-import { filter, some } from 'lodash';
+import { useEffect, useMemo } from 'react';
+import { filter, some, isEmpty } from 'lodash';
 import Unauthorized from '@/pages/unauthorized';
 import useAuth from './hooks/useAuth';
 import useRole from '../role/hooks/useRole';
@@ -11,31 +11,29 @@ const withAuth =
   // eslint-disable-next-line react/display-name
   (props: T) => {
     const { push } = useRouter();
-    const { isAuthenticated, checkAuth, currentUser } = useAuth();
-    const [isLoading, setIsLoading] = useState(true);
+    const { isAuthenticated, checkAuth, currentUser, isLoginLoading } =
+      useAuth();
     const { fetchRoles, roles: rolesDB } = useRole();
-    const userRoles = filter(
-      rolesDB,
-      (r) => Number(r.id) === Number(currentUser.role),
+
+    const userRoles = useMemo(
+      () => filter(rolesDB, (r) => Number(r.id) === Number(currentUser.role)),
+      [rolesDB, currentUser],
     );
 
     useEffect(() => {
-      const verifyAuth = async () => {
-        await checkAuth();
-        setIsLoading(false);
-      };
-      verifyAuth();
-    }, [isAuthenticated]);
-
-    useEffect(() => {
+      checkAuth();
       fetchRoles();
     }, []);
 
-    if (isLoading) {
-      return null;
+    if (isLoginLoading || isEmpty(userRoles) || isEmpty(rolesDB)) {
+      return (
+        <div style={{ height: '100vh', backgroundColor: 'green' }}>
+          Loading...
+        </div>
+      );
     }
 
-    if (!isLoading && !isAuthenticated) {
+    if (!isAuthenticated) {
       push('/login');
       return null;
     }
@@ -45,6 +43,7 @@ const withAuth =
       // @ts-ignore
       return <Componente {...props} />;
     }
+
     return <Unauthorized />;
   };
 

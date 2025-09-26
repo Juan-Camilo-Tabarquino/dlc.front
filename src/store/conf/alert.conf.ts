@@ -1,5 +1,5 @@
 export const alertConf = {
-  host: process.env.BACKEND_URL,
+  host: process.env.NEXT_PUBLIC_BACKEND_URL,
   endpoints: {
     getAlerts: '/alerts/alertsbycompany/${idCompany}',
     getAlertsNoRead: '/alerts/activealertsbycompany/${idCompany}',

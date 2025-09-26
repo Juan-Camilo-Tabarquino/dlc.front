@@ -5,11 +5,12 @@ import logger from 'redux-logger';
 import userSliceReducer from './user/userSlice';
 import companySliceReducer from './company/companySlice';
 import locationSliceReducer from './location/locationSlice';
-import authSliceReducer from './auth/authSlice';
+import { authFeature } from './auth/auth.feature';
 import roleSliceReducer from './role/roleSlice';
 // import alertSliceReducer from './alert/alertSlice';
 import { alertApi } from './api/alertApi';
 import { alertFeature } from './alert/alert.feature';
+import { authApi } from './api/authApi';
 
 // (Ejemplo) Si luego agregas APIs con RTK Query, las importarías aquí:
 // import { authApi } from './api/auth.api';
@@ -22,20 +23,22 @@ const reducers = {
   // Cuando uses RTK Query, agregarías aquí:
   // [usersApi.reducerPath]: usersApi.reducer,
   [alertApi.reducerPath]: alertApi.reducer,
+  [authApi.reducerPath]: authApi.reducer,
 
   users: userSliceReducer,
   companies: companySliceReducer,
   locations: locationSliceReducer,
-  auth: authSliceReducer,
+  // auth: authSliceReducer,
   roles: roleSliceReducer,
   // alerts: alertSliceReducer,
   [alertFeature.name]: alertFeature.reducer,
+  [authFeature.name]: authFeature.reducer,
 };
 
 // Middlewares (listo para RTK Query en el futuro)
 const apiMiddlewares = [
   alertApi.middleware,
-  // authApi.middleware,
+  authApi.middleware,
   // usersApi.middleware,
 ];
 

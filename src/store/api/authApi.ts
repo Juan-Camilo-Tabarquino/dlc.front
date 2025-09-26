@@ -1,15 +1,15 @@
 import { customQuery } from '@/core/rtk.core';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { alertConf } from '../conf/alert.conf';
+import { authConf } from '../conf/auth.conf';
 
-export const alertApi = createApi({
-  reducerPath: 'apiAlerts',
+export const authApi = createApi({
+  reducerPath: 'apiAuth',
   keepUnusedDataFor: 60,
   baseQuery: customQuery(
     fetchBaseQuery({
-      baseUrl: alertConf.host,
+      baseUrl: authConf.host,
     }),
   ),
-  tagTypes: ['Alerts'],
+  tagTypes: ['Auth'],
   endpoints: () => ({}),
 });

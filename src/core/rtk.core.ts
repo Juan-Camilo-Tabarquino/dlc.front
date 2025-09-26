@@ -44,8 +44,8 @@ const UsePathParams = (options: FetchArgs): FetchArgs => {
     );
   } else {
     options.body = omit(
-      properties.flatMap((item) => item.match(/\w+/g) || []),
       options.body || {},
+      properties.flatMap((item) => item.match(/\w+/g) || []),
     );
   }
   return options;
