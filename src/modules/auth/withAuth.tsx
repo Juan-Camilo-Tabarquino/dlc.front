@@ -5,6 +5,7 @@ import { filter, some, isEmpty } from 'lodash';
 import Unauthorized from '@/pages/unauthorized';
 import useAuth from './hooks/useAuth';
 import useRole from '../role/hooks/useRole';
+import Loading from './components/Loading';
 
 const withAuth =
   <T,>(Componente: NextPage<T>, allowedRoles: string[]) =>
@@ -27,8 +28,8 @@ const withAuth =
 
     if (isLoginLoading || isEmpty(userRoles) || isEmpty(rolesDB)) {
       return (
-        <div style={{ height: '100vh', backgroundColor: 'green' }}>
-          Loading...
+        <div style={{ height: '100vh', backgroundColor: '#ffffff' }}>
+          <Loading />
         </div>
       );
     }
