@@ -1,6 +1,6 @@
 import React from 'react';
 import { LocationByDate, User } from '@/types';
-import SelectTrip from '../../selectTrip';
+import SelectTrip from '../selectTrip';
 
 type SelectTripHistoryProps = {
   showSelectTrip: boolean;

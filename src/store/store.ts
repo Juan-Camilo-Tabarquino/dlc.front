@@ -1,44 +1,48 @@
 import { configureStore } from '@reduxjs/toolkit';
 import logger from 'redux-logger';
-
-// Importa tus slices actuales
 import userSliceReducer from './user/userSlice';
-import companySliceReducer from './company/companySlice';
-import locationSliceReducer from './location/locationSlice';
+import { companyFeature } from './company/company.feature';
+import { locationFeature } from './location/location.feature';
 import { authFeature } from './auth/auth.feature';
-import roleSliceReducer from './role/roleSlice';
-// import alertSliceReducer from './alert/alertSlice';
+import { roleFeature } from './role/role.feature';
 import { alertApi } from './api/alertApi';
 import { alertFeature } from './alert/alert.feature';
 import { authApi } from './api/authApi';
-
-// (Ejemplo) Si luego agregas APIs con RTK Query, las importarías aquí:
-// import { authApi } from './api/auth.api';
-// import { usersApi } from './api/users.api';
+import { companyApi } from './api/companyApi';
+import { roleApi } from './api/roleApi';
+import { locationApi } from './api/locationApi';
 
 const IS_PRODUCTION = process.env.MODE === 'production';
 
-// Reducers combinados
 const reducers = {
   // Cuando uses RTK Query, agregarías aquí:
   // [usersApi.reducerPath]: usersApi.reducer,
   [alertApi.reducerPath]: alertApi.reducer,
   [authApi.reducerPath]: authApi.reducer,
+  [companyApi.reducerPath]: companyApi.reducer,
+  [roleApi.reducerPath]: roleApi.reducer,
+  [locationApi.reducerPath]: locationApi.reducer,
 
   users: userSliceReducer,
-  companies: companySliceReducer,
-  locations: locationSliceReducer,
+  // companies: companySliceReducer,
+  // locations: locationSliceReducer,
   // auth: authSliceReducer,
-  roles: roleSliceReducer,
+  // roles: roleSliceReducer,
   // alerts: alertSliceReducer,
   [alertFeature.name]: alertFeature.reducer,
   [authFeature.name]: authFeature.reducer,
+  [companyFeature.name]: companyFeature.reducer,
+  [roleFeature.name]: roleFeature.reducer,
+  [locationFeature.name]: locationFeature.reducer,
 };
 
 // Middlewares (listo para RTK Query en el futuro)
 const apiMiddlewares = [
   alertApi.middleware,
   authApi.middleware,
+  companyApi.middleware,
+  roleApi.middleware,
+  locationApi.middleware,
   // usersApi.middleware,
 ];
 

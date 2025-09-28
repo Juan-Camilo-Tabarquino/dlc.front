@@ -12,19 +12,13 @@ import useAuth from '../auth/hooks/useAuth';
 
 const AdminPage: React.FC = () => {
   const { fetchUsersWithLocation, users } = useUser();
-  const { fetchCompanies, companies } = useCompany();
   const { currentUser } = useSelector((state: RootState) => state.auth);
   const { startLogout } = useAuth();
+  useCompany();
 
   useEffect(() => {
     if (isEmpty(users)) {
       fetchUsersWithLocation();
-    }
-  }, []);
-
-  useEffect(() => {
-    if (isEmpty(companies)) {
-      fetchCompanies();
     }
   }, []);
 

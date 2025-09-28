@@ -9,7 +9,7 @@ import dayjs from 'dayjs';
 import {
   listLocationsByDate,
   listLocationsPoint,
-} from '@/store/location/locationSlice';
+} from '@/store/location/location.feature';
 import { selectAlert } from '@/store/alert/alert.feature';
 import { map } from 'lodash';
 import useUser from '../user/hooks/useUser';
@@ -19,9 +19,9 @@ import useLocation from '../location/hooks/useLocation';
 import useAuth from '../auth/hooks/useAuth';
 import useAlert from '../alert/hooks/useAlert';
 import CardAlert from '../alert/CardAlert';
-import ShowUser from '../user/hooks/siderCompanent/showUser';
-import SelectedUser from '../user/hooks/siderCompanent/selectedUser';
-import SelectTripHistory from '../user/hooks/siderCompanent/showSelectTrip';
+import ShowUser from '../user/siderComponent/showUser';
+import SelectedUser from '../user/siderComponent/selectedUser';
+import SelectTripHistory from '../user/siderComponent/showSelectTrip';
 
 const { Content, Sider, Footer } = Layout;
 
@@ -29,13 +29,8 @@ const MainPage: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const { currentUser } = useSelector((state: RootState) => state.auth);
   const {
-    // fetchAlertById,
-    // editAlertStatus,
-    // fetchAlertNoRead,
-    // notifyAlertMobile,
     alertsNoRead,
     changeHistoryAlert,
-    // changeAlertStatus,
     historyAlert,
     sctAlert,
     alerts,
@@ -66,25 +61,7 @@ const MainPage: React.FC = () => {
       u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       u.cedula.toString().includes(searchTerm),
   );
-  // const showAlert = async ({
-  //   id,
-  //   iduser,
-  //   date,
-  // }: {
-  //   id: number;
-  //   iduser: number;
-  //   date: string;
-  // }) => {
-  //   try {
-  //     await fetchAlertById(id);
-  //     await changeAlertStatus({ id, status: 2 });
-  //     await notifyAlertMobile(iduser, date);
-  //   } catch (e) {
-  //     message.error(
-  //       `Error buscando la alerta: ${e instanceof Error ? e.message : JSON.stringify(e)}`,
-  //     );
-  //   }
-  // };
+
   const onSubmit = async (data: FetchHistory) => {
     try {
       const firstDate = `${dayjs(data.recorridoI).format('YYYY-MM-DD')}T00:00:00Z`;
@@ -191,7 +168,6 @@ const MainPage: React.FC = () => {
               searchTerm={searchTerm}
               setSearchTerm={setSearchTerm}
             />
-
             <SelectedUser
               selectedUser={selectedUser}
               showSelectTrip={showSelectTrip}
@@ -204,7 +180,6 @@ const MainPage: React.FC = () => {
               setShowSelectAlert={setShowSelectAlert}
               changeHistoryAlert={changeHistoryAlert}
             />
-
             <SelectTripHistory
               showSelectTrip={showSelectTrip}
               selectedUser={selectedUser}

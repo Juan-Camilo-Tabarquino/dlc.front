@@ -7,7 +7,7 @@ const { useForm } = Form;
 
 type CompanyFormProps = {
   initialValues: Partial<Company>;
-  onSubmit: (data: Partial<Company>) => void;
+  onSubmit: (data: Partial<Company>, isEdit: boolean) => void;
   isEdit: boolean;
 };
 
@@ -30,7 +30,7 @@ export default function CompanyForm({
     <Form
       form={form}
       initialValues={initialValues}
-      onFinish={onSubmit}
+      onFinish={(data) => onSubmit(data, isEdit)}
       layout="vertical"
     >
       <Row gutter={16}>

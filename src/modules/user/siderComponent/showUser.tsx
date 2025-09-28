@@ -2,7 +2,7 @@ import { FC } from 'react';
 import { Input } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import { User } from '@/types';
-import CardUser from '../../CardUser';
+import CardUser from '../CardUser';
 
 type ShowUserProps = {
   showSelectTrip: boolean;

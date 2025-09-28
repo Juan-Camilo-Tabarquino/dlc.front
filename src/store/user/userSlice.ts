@@ -3,10 +3,10 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import { User } from '@/types';
 
 type userSate = {
-    users: User[]
-}
+  users: User[];
+};
 
-const initialState:userSate = { users: [] };
+const initialState: userSate = { users: [] };
 
 export const userSlice = createSlice({
   name: 'users',

@@ -1,4 +1,3 @@
-import useRole from '@/modules/role/hooks/useRole';
 import useUser from '@/modules/user/hooks/useUser';
 import { login, logout } from '@/store/auth/auth.feature';
 import { useLoginMutation } from '@/store/auth/auth.slice';
@@ -16,12 +15,10 @@ export default function useAuth() {
   const dispatch = useDispatch();
   const { push } = useRouter();
   const { fetchUserById } = useUser();
-  const { fetchRoles } = useRole();
   const [loginMutation, { isLoading: isLoginLoading }] = useLoginMutation();
 
   const startLogin = async (username: string, password: string) => {
     const res = await loginMutation({ username, password }).unwrap();
-    await fetchRoles();
     push('/maps');
     message.success(`Bienvenido: ${res.user.name}`);
   };
@@ -31,7 +28,6 @@ export default function useAuth() {
       const localToken = localStorage.getItem('authToken');
       if (localToken) {
         const userId = get(jwtDecode(localToken), ['sub']);
-        await fetchRoles();
         const resCurrentUser = await fetchUserById(Number(userId));
         dispatch(
           login({

@@ -14,7 +14,7 @@ const withAuth =
     const { push } = useRouter();
     const { isAuthenticated, checkAuth, currentUser, isLoginLoading } =
       useAuth();
-    const { fetchRoles, roles: rolesDB } = useRole();
+    const { roles: rolesDB, isLoadingRoles } = useRole();
 
     const userRoles = useMemo(
       () => filter(rolesDB, (r) => Number(r.id) === Number(currentUser.role)),
@@ -23,10 +23,14 @@ const withAuth =
 
     useEffect(() => {
       checkAuth();
-      fetchRoles();
     }, []);
 
-    if (isLoginLoading || isEmpty(userRoles) || isEmpty(rolesDB)) {
+    if (
+      isLoginLoading ||
+      isLoadingRoles ||
+      isEmpty(userRoles) ||
+      isEmpty(rolesDB)
+    ) {
       return (
         <div style={{ height: '100vh', backgroundColor: '#ffffff' }}>
           <Loading />

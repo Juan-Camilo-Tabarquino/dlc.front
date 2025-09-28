@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   Card,
   Col,
@@ -9,7 +9,6 @@ import {
   Pagination,
   Tooltip,
   Switch,
-  message,
   Typography,
   Popconfirm,
   App,
@@ -33,20 +32,9 @@ const CompanyCards = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(9);
-  const {
-    companies,
-    fetchCompanies,
-    activeCompany,
-    addNewCompany,
-    editCompany,
-  } = useCompany();
+  const { companies, onSubmit, handleActiveCompany } = useCompany();
   const [isEdit, setIsEdit] = useState<boolean>(false);
-  const [refreshTrigger, setRefreshTrigger] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<Company | object>({});
-
-  useEffect(() => {
-    fetchCompanies();
-  }, [refreshTrigger]);
 
   const handleSearch = (value: string) => {
     setSearchValue(value);
@@ -74,35 +62,9 @@ const CompanyCards = () => {
     setSelectedCompany(company);
     setIsModalVisible(true);
   };
-  const onSubmit = async (data: Partial<Company>) => {
-    try {
-      if (isEdit) {
-        await editCompany({ ...selectedCompany, ...data } as Company);
-        message.success('La compañia se ha modificado exitosamente');
-      } else {
-        await addNewCompany(data);
-        message.success('La compañia se ha creado exitosamente');
-      }
-      setIsModalVisible(false);
-      setRefreshTrigger((prev) => !prev);
-    } catch (error) {
-      message.error('Error al crear la compañia');
-      return error;
-    } finally {
-      setIsEdit(false);
-      setSelectedCompany({});
-    }
-  };
 
   const handleConfirm = async (companyId: number) => {
-    try {
-      await activeCompany(companyId);
-      message.success('El estado de la compañía se actualizó correctamente');
-      setRefreshTrigger((prev) => !prev);
-    } catch (error) {
-      message.error('No fue posible actualizar el estado de la compañía');
-      return error;
-    }
+    handleActiveCompany(companyId);
   };
   const paginatedCompany = filteredCompanies.slice(
     (currentPage - 1) * itemsPerPage,
