@@ -1,5 +1,6 @@
 import Head from 'next/head';
 import AdminPage from '@/modules/pagesComponents/AdminPage';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import withAuth from '@/modules/auth/withAuth';
 
 function Admin() {
@@ -16,4 +17,5 @@ function Admin() {
   );
 }
 
-export default withAuth(Admin, ['superadmin']);
+// export default withAuth(Admin, ['superadmin']);
+export default Admin;

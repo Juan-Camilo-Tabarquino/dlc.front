@@ -1,6 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 import logger from 'redux-logger';
-import userSliceReducer from './user/userSlice';
+import { userFeature } from './user/user.feature';
 import { companyFeature } from './company/company.feature';
 import { locationFeature } from './location/location.feature';
 import { authFeature } from './auth/auth.feature';
@@ -11,24 +11,26 @@ import { authApi } from './api/authApi';
 import { companyApi } from './api/companyApi';
 import { roleApi } from './api/roleApi';
 import { locationApi } from './api/locationApi';
+import { userApi } from './api/userApi';
 
 const IS_PRODUCTION = process.env.MODE === 'production';
 
 const reducers = {
   // Cuando uses RTK Query, agregarías aquí:
-  // [usersApi.reducerPath]: usersApi.reducer,
+  [userApi.reducerPath]: userApi.reducer,
   [alertApi.reducerPath]: alertApi.reducer,
   [authApi.reducerPath]: authApi.reducer,
   [companyApi.reducerPath]: companyApi.reducer,
   [roleApi.reducerPath]: roleApi.reducer,
   [locationApi.reducerPath]: locationApi.reducer,
 
-  users: userSliceReducer,
+  // users: userSliceReducer,
   // companies: companySliceReducer,
   // locations: locationSliceReducer,
   // auth: authSliceReducer,
   // roles: roleSliceReducer,
   // alerts: alertSliceReducer,
+  [userFeature.name]: userFeature.reducer,
   [alertFeature.name]: alertFeature.reducer,
   [authFeature.name]: authFeature.reducer,
   [companyFeature.name]: companyFeature.reducer,
@@ -43,7 +45,7 @@ const apiMiddlewares = [
   companyApi.middleware,
   roleApi.middleware,
   locationApi.middleware,
-  // usersApi.middleware,
+  userApi.middleware,
 ];
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

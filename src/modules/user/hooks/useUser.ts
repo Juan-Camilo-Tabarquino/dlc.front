@@ -1,119 +1,69 @@
-import { BASE_URL } from '@/commons/constants';
 import type { RootState } from '@/store/store';
-import { listUsers } from '@/store/user/userSlice';
+import {
+  useActiveUserMutation,
+  useAddNewUserMutation,
+  useEditPasswordUserMutation,
+  useEditUserMutation,
+  useGetUsersWithLastLocationQuery,
+} from '@/store/user/user.slice';
 import { NewUser, User } from '@/types';
-import axios from 'axios';
-import { useDispatch, useSelector } from 'react-redux';
-
-const { get, post, put } = axios;
+import { message } from 'antd';
+import { useSelector } from 'react-redux';
 
 export default function useUser() {
   const { users } = useSelector((state: RootState) => state.users);
-  const dispatch = useDispatch();
-  const fetchUsers = async () => {
-    try {
-      const res = await get(`${BASE_URL}/users`);
-      dispatch(listUsers(res.data));
-    } catch (error) {
-      return error;
-    }
-  };
-  const fetchUsersWithLocation = async () => {
-    try {
-      const res = await get(`${BASE_URL}/users/user/withalllastlocation`);
-      dispatch(listUsers(res.data));
-    } catch (error) {
-      return error;
-    }
-  };
-
-  const fetchUserById = async (id: number) => {
-    try {
-      const res = await get(`${BASE_URL}/users/${id}`);
-      return res.data;
-    } catch (error) {
-      return error;
-    }
-  };
-
-  const fetchUsersWithLastLocation = async (companyId: number) => {
-    try {
-      const res = await get(
-        `${BASE_URL}/users/user/withLastLocation/${companyId}`,
-      );
-      dispatch(listUsers(res.data));
-    } catch (error) {
-      return error;
-    }
-  };
-
-  const fetchUsersWithLastLocationById = async (userId: number) => {
-    try {
-      const res = await get(`${BASE_URL}/lastlocations/${userId}`);
-      return res.data;
-    } catch (error) {
-      return error;
-    }
-  };
+  const { isLoading: isLoadingUsers } = useGetUsersWithLastLocationQuery();
+  const [createNewUser, { error: errorNewUser }] = useAddNewUserMutation();
+  const [editUserMutation, { error: errorEditUser }] = useEditUserMutation();
+  const [editPasswordUserMutation, { error: errorEditPasswordUser }] =
+    useEditPasswordUserMutation();
+  const [activeUserMutation, { error: errorActiveUser }] =
+    useActiveUserMutation();
 
   const addNewUser = async (data: Partial<NewUser>) => {
-    try {
-      const { company, ...restData } = data;
-      const newUser: Partial<NewUser> = {
-        ...restData,
-        createDate: new Date().toLocaleDateString(),
-        companyId: Number(company),
-      };
-
-      const res = await post(`${BASE_URL}/users/createUser`, newUser);
-      return res;
-    } catch (error) {
-      return error;
-    }
+    const { company, ...restData } = data;
+    const newUser: Partial<NewUser> = {
+      ...restData,
+      createDate: new Date().toLocaleDateString(),
+      companyId: Number(company),
+    };
+    await createNewUser(newUser);
+    if (errorNewUser) message.error('El usuario no se ha creado exitosamente');
+    message.success('El usuario se ha creado exitosamente');
   };
 
   const activeUser = async (id: number) => {
-    try {
-      const res = await put(`${BASE_URL}/users/active/${id}`);
-      return res;
-    } catch (error) {
-      return error;
-    }
+    await activeUserMutation(id);
+    if (errorActiveUser)
+      message.error('El estado de la compañía se actualizó correctamente');
+    message.success('El estado de la compañía se actualizó correctamente');
   };
 
   const editUser = async (infoEditUser: User) => {
-    try {
-      const res = await put(
-        `${BASE_URL}/users/${infoEditUser?.id}`,
-        infoEditUser,
-      );
-      return res;
-    } catch (error) {
-      return error;
-    }
+    await editUserMutation(infoEditUser);
+    if (errorEditUser)
+      message.error('El usuario no se ha modificado exitosamente');
+    message.success('El usuario se ha modificado exitosamente');
   };
 
   const editPasswordUser = async (id: number, passsword: string) => {
-    try {
-      const res = await put(`${BASE_URL}/users/updatepassword/${id}`, {
-        newPassword: passsword,
-      });
-      return res;
-    } catch (error) {
-      return error;
-    }
+    await editPasswordUserMutation({ id, newPassword: passsword });
+    if (errorEditPasswordUser)
+      message.error('El usuario no se ha modificado exitosamente');
+    message.success('El usuario se ha modificado exitosamente');
   };
 
   return {
     users,
-    fetchUsers,
-    fetchUsersWithLocation,
-    fetchUsersWithLastLocation,
-    fetchUsersWithLastLocationById,
+    isLoadingUsers,
+    // fetchUsers,
+    // fetchUsersWithLocation,
+    // fetchUsersWithLastLocation,
+    // fetchUsersWithLastLocationById,
     addNewUser,
     editUser,
     editPasswordUser,
     activeUser,
-    fetchUserById,
+    // fetchUserById,
   };
 }

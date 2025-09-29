@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Layout, Button, Space, Row, Flex, message } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
-import { FetchHistory, User } from '@/types';
+import { FetchHistory, LastLocation, User } from '@/types';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
 import HeaderComponent from '@/commons/header';
@@ -44,8 +44,7 @@ const MainPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showAllPoints, setShowAllPoints] = useState(true);
   const [showTripSubmit, setshowTripSubmit] = useState(false);
-  const { users, fetchUsersWithLastLocation, fetchUsersWithLastLocationById } =
-    useUser();
+  const { users } = useUser();
   const { locationsByDate, locationSelect, locationHistoryByUser } =
     useLocation();
   const [showSelectTrip, setShowSelectTrip] = useState(false);
@@ -87,12 +86,11 @@ const MainPage: React.FC = () => {
       const fetchUsers = async () => {
         try {
           if (selectedUser && !showSelectAlert) {
-            const res = await fetchUsersWithLastLocationById(
-              Number(selectedUser.id),
-            );
-            setSelectedUser({ ...selectedUser, lastlocation: res });
-          } else {
-            await fetchUsersWithLastLocation(Number(currentUser.company?.id));
+            const res = users.find((u) => u.id === Number(selectedUser.id));
+            setSelectedUser({
+              ...selectedUser,
+              lastlocation: res?.lastlocation ?? ({} as LastLocation),
+            });
           }
         } catch (err) {
           setError('Failed to fetch users');

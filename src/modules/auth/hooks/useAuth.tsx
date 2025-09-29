@@ -1,7 +1,7 @@
-import useUser from '@/modules/user/hooks/useUser';
 import { login, logout } from '@/store/auth/auth.feature';
 import { useLoginMutation } from '@/store/auth/auth.slice';
 import { RootState } from '@/store/store';
+import { useLazyGetUserByIdQuery } from '@/store/user/user.slice';
 import { message } from 'antd';
 import { jwtDecode } from 'jwt-decode';
 import { get } from 'lodash';
@@ -14,8 +14,8 @@ export default function useAuth() {
   );
   const dispatch = useDispatch();
   const { push } = useRouter();
-  const { fetchUserById } = useUser();
   const [loginMutation, { isLoading: isLoginLoading }] = useLoginMutation();
+  const [getUserById] = useLazyGetUserByIdQuery();
 
   const startLogin = async (username: string, password: string) => {
     const res = await loginMutation({ username, password }).unwrap();
@@ -28,7 +28,7 @@ export default function useAuth() {
       const localToken = localStorage.getItem('authToken');
       if (localToken) {
         const userId = get(jwtDecode(localToken), ['sub']);
-        const resCurrentUser = await fetchUserById(Number(userId));
+        const resCurrentUser = await getUserById(Number(userId)).unwrap();
         dispatch(
           login({
             token: localToken,

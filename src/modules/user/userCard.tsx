@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   Col,
   Row,
@@ -35,20 +35,8 @@ const UserCards = () => {
   const [itemsPerPage] = useState(9);
   const { companies } = useCompany();
   const { roles } = useSelector((state: RootState) => state.roles);
-  const {
-    fetchUsersWithLocation,
-    users,
-    activeUser,
-    addNewUser,
-    editUser,
-    editPasswordUser,
-  } = useUser();
-
-  const [refreshTrigger, setRefreshTrigger] = useState(false);
-
-  useEffect(() => {
-    fetchUsersWithLocation();
-  }, [refreshTrigger]);
+  const { users, activeUser, addNewUser, editUser, editPasswordUser } =
+    useUser();
 
   const handleSearch = (value: string) => {
     setCurrentPage(1);
@@ -84,45 +72,16 @@ const UserCards = () => {
       role: Number(data.role),
       password: String(data.password),
     };
-
-    try {
-      if (isEdit) {
-        const res = await editUser({ ...selectedUser, ...tempUser } as User);
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        if (res.status === 200) {
-          message.success('El usuario se ha modificado exitosamente');
-        } else {
-          message.error('El usuario no se ha modificado exitosamente');
-        }
-      } else if (isPassword && selectedUser && 'id' in selectedUser) {
-        const res = await editPasswordUser(selectedUser.id, tempUser.password);
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        if (res.status === 200) {
-          message.success('El usuario se ha modificado exitosamente');
-        } else {
-          message.error('El usuario no se ha modificado exitosamente');
-        }
-      } else {
-        const res = await addNewUser(tempUser);
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        if (res.status === 201) {
-          message.success('El usuario se ha creado exitosamente');
-        } else {
-          message.error('El usuario no se ha creado exitosamente');
-        }
-      }
-      setIsModalVisible(false);
-      setRefreshTrigger((prev) => !prev);
-    } catch (error) {
-      message.error('Error al crear el usuario');
-      return error;
-    } finally {
-      setIsEdit(false);
-      setSelectedUser({});
+    if (isEdit) {
+      await editUser({ ...selectedUser, ...tempUser } as User);
+    } else if (isPassword && selectedUser && 'id' in selectedUser) {
+      await editPasswordUser(selectedUser.id, tempUser.password);
+    } else {
+      await addNewUser(tempUser);
     }
+    setIsModalVisible(false);
+    setIsEdit(false);
+    setSelectedUser({});
   };
 
   const handleCancel = () => {
@@ -153,7 +112,6 @@ const UserCards = () => {
     try {
       await activeUser(userId);
       message.success('El estado de la compañía se actualizó correctamente');
-      setRefreshTrigger((prev) => !prev);
     } catch (error) {
       message.error('No fue posible actualizar el estado de la compañía');
       return error;

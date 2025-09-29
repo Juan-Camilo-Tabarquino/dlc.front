@@ -1,6 +1,5 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Layout, Tabs, ConfigProvider } from 'antd';
-import { isEmpty } from 'lodash';
 import HeaderComponent from '@/commons/header';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
@@ -11,16 +10,10 @@ import useCompany from '../company/hooks/useCompany';
 import useAuth from '../auth/hooks/useAuth';
 
 const AdminPage: React.FC = () => {
-  const { fetchUsersWithLocation, users } = useUser();
   const { currentUser } = useSelector((state: RootState) => state.auth);
   const { startLogout } = useAuth();
+  useUser();
   useCompany();
-
-  useEffect(() => {
-    if (isEmpty(users)) {
-      fetchUsersWithLocation();
-    }
-  }, []);
 
   return (
     <ConfigProvider
