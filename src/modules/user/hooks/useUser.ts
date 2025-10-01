@@ -15,7 +15,6 @@ import { useSelector } from 'react-redux';
 export default function useUser() {
   const { users } = useSelector((state: RootState) => state.users);
   const { currentUser } = useSelector((state: RootState) => state.auth);
-  // const { isLoading: isLoadingUsers } = useGetUsersWithLastLocationQuery();
   const [getUsers, { isLoading: isLoadingUsers }] =
     useLazyGetUsersWithLastLocationQuery();
   const [getUsersWLLByCompany, { isLoading: isLoadingUsersWLLByCompany }] =
