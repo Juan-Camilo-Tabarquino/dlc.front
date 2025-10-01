@@ -4,15 +4,22 @@ import {
   useAddNewUserMutation,
   useEditPasswordUserMutation,
   useEditUserMutation,
-  useGetUsersWithLastLocationQuery,
+  useLazyGetUsersWithLastLocationByCompanyIdQuery,
+  useLazyGetUsersWithLastLocationQuery,
 } from '@/store/user/user.slice';
 import { NewUser, User } from '@/types';
 import { message } from 'antd';
+import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 
 export default function useUser() {
   const { users } = useSelector((state: RootState) => state.users);
-  const { isLoading: isLoadingUsers } = useGetUsersWithLastLocationQuery();
+  const { currentUser } = useSelector((state: RootState) => state.auth);
+  // const { isLoading: isLoadingUsers } = useGetUsersWithLastLocationQuery();
+  const [getUsers, { isLoading: isLoadingUsers }] =
+    useLazyGetUsersWithLastLocationQuery();
+  const [getUsersWLLByCompany, { isLoading: isLoadingUsersWLLByCompany }] =
+    useLazyGetUsersWithLastLocationByCompanyIdQuery();
   const [createNewUser, { error: errorNewUser }] = useAddNewUserMutation();
   const [editUserMutation, { error: errorEditUser }] = useEditUserMutation();
   const [editPasswordUserMutation, { error: errorEditPasswordUser }] =
@@ -53,9 +60,18 @@ export default function useUser() {
     message.success('El usuario se ha modificado exitosamente');
   };
 
+  useEffect(() => {
+    if (currentUser.role === 2) {
+      getUsersWLLByCompany(Number(currentUser.company.id));
+      return;
+    }
+    getUsers();
+  }, [currentUser]);
+
   return {
     users,
     isLoadingUsers,
+    isLoadingUsersWLLByCompany,
     // fetchUsers,
     // fetchUsersWithLocation,
     // fetchUsersWithLastLocation,

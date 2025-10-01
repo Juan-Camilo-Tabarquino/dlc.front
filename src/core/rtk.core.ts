@@ -39,8 +39,8 @@ const UsePathParams = (options: FetchArgs): FetchArgs => {
 
   if (options.method === 'GET') {
     options.params = omit(
-      properties.flatMap((item) => item.match(/\w+/g) || []),
       options.params || {},
+      properties.flatMap((item) => item.match(/\w+/g) || []),
     );
   } else {
     options.body = omit(

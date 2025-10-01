@@ -69,6 +69,7 @@ export const {
   useGetUserByIdQuery,
   useLazyGetUserByIdQuery,
   useGetUsersWithLastLocationByCompanyIdQuery,
+  useLazyGetUsersWithLastLocationByCompanyIdQuery,
   useGetUserWithLastLocationByIdQuery,
   useAddNewUserMutation,
   useEditUserMutation,

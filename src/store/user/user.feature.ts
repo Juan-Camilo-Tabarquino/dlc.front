@@ -24,6 +24,12 @@ export const userFeature = createSlice({
         state.users = action.payload;
       },
     );
+    builder.addMatcher(
+      userApiSlice.endpoints.getUsersWithLastLocationByCompanyId.matchFulfilled,
+      (state, action) => {
+        state.users = action.payload;
+      },
+    );
   },
 });
 

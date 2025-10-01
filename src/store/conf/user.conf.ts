@@ -5,7 +5,7 @@ export const userConf = {
     getUsersWithLastLocation: '/users/user/withalllastlocation',
     getUserById: '/users/${id}',
     getUsersWithLastLocationByCompanyId:
-      '/users/user/withalllastlocation/${companyId}',
+      '/users/user/withLastLocation/${companyId}',
     getUserWithLastLocationById: '/lastlocations/${id}',
     addNewUser: '/users/createUser',
     activeUser: '/users/active/${id}',
