@@ -16,7 +16,9 @@ const { post, get } = axios;
 
 export default function useAlert({ currentUser }: { currentUser: User }) {
   const [historyAlert, setHistoryAlert] = useState(false);
-  const { sctAlert } = useSelector((state: RootState) => state.alerts);
+  const { sctAlert, alertsNoRead, alerts } = useSelector(
+    (state: RootState) => state.alerts,
+  );
 
   const dispatch = useDispatch();
   // const fetchAlert = async (idCompany: number) => {
@@ -28,9 +30,8 @@ export default function useAlert({ currentUser }: { currentUser: User }) {
   //   }
   // };
 
-  const [triggerAlertsNoRead, { data: alertsNoRead }] =
-    useLazyGetAlertsNoReadQuery();
-  const [triggerAlerts, { data: alerts }] = useLazyGetAlertsQuery();
+  const [triggerAlertsNoRead] = useLazyGetAlertsNoReadQuery();
+  const [triggerAlerts] = useLazyGetAlertsQuery();
   const [changeAlertStatus] = useChangeAlertStatusMutation();
 
   useEffect(() => {

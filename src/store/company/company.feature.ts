@@ -41,6 +41,16 @@ export const companyFeature = createSlice({
         });
       },
     );
+    builder.addMatcher(
+      companyApiSlice.endpoints.activeCompany.matchFulfilled,
+      (state, action) => {
+        state.companies = state.companies.map((company) => {
+          return company.id === action.payload.id
+            ? { ...company, active: action.payload.active }
+            : company;
+        });
+      },
+    );
   },
 });
 
