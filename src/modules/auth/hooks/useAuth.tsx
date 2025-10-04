@@ -36,7 +36,7 @@ export default function useAuth() {
             isAuthenticated: true,
           }),
         );
-        return push('/maps');
+        return;
       }
       push('/login');
     } catch (error) {
