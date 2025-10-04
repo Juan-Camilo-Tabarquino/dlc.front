@@ -18,10 +18,10 @@ export default function useCompany() {
 
   const onSubmit = async (data: Partial<Company>, isEdit: boolean) => {
     if (isEdit) {
-      await createCompany(data);
+      await editCompany(data);
       message.success('La compañia se ha modificado exitosamente');
     } else {
-      await editCompany(data);
+      await createCompany(data);
       message.success('La compañia se ha creado exitosamente');
     }
   };

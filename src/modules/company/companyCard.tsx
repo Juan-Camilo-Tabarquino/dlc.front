@@ -66,6 +66,13 @@ const CompanyCards = () => {
   const handleConfirm = async (companyId: number) => {
     handleActiveCompany(companyId);
   };
+
+  const handleOnSubmit = async (data: Partial<Company>, isEdit: boolean) => {
+    onSubmit(data, isEdit);
+    setIsModalVisible(false);
+    setIsEdit(false);
+    setSelectedCompany({});
+  };
   const paginatedCompany = filteredCompanies.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage,
@@ -165,7 +172,7 @@ const CompanyCards = () => {
         >
           <CompanyForm
             initialValues={selectedCompany}
-            onSubmit={onSubmit}
+            onSubmit={handleOnSubmit}
             isEdit={isEdit}
           />
         </Modal>

@@ -12,18 +12,18 @@ export const companyApiSlice = companyApi.injectEndpoints({
       providesTags: ['Companies'],
     }),
     createCompany: builder.mutation({
-      query: ({ name, email, phone, nit, adress, logo }) => ({
+      query: (payload) => ({
         url: companyConf.endpoints.createCompany,
         method: 'POST',
-        body: { name, email, phone, nit, adress, logo },
+        body: payload,
       }),
     }),
     editCompany: builder.mutation({
-      query: ({ id, name, email, phone, nit, adress, logo }) => ({
+      query: (payload) => ({
         url: companyConf.endpoints.editCompany,
         method: 'PUT',
-        params: { id },
-        body: { name, email, phone, nit, adress, logo },
+        params: { id: payload.id },
+        body: payload,
       }),
     }),
     activeCompany: builder.mutation({

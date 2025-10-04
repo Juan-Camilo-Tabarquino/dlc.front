@@ -30,6 +30,17 @@ export const companyFeature = createSlice({
         state.companies = [...state.companies, action.payload];
       },
     );
+    builder.addMatcher(
+      companyApiSlice.endpoints.editCompany.matchFulfilled,
+      (state, action) => {
+        state.companies = state.companies.map((company) => {
+          if (company.id === action.payload.id) {
+            return action.payload;
+          }
+          return company;
+        });
+      },
+    );
   },
 });
 
