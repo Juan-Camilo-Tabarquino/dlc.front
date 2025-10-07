@@ -34,6 +34,7 @@ export type User = {
   lastlocation: LastLocation;
   company: Company;
   role: number;
+  hasAlert: boolean;
 };
 
 export type Company = {

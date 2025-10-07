@@ -1,0 +1,19 @@
+.sos-blink {
+  width: 24px;
+  height: 24px;
+  background-color: red;
+  border-radius: 50%;
+  box-shadow: 0 0 15px rgba(255, 0, 0, 0.8);
+  animation: blink 1s infinite alternate;
+}
+
+@keyframes blink {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0.4;
+    transform: scale(1.3);
+  }
+}

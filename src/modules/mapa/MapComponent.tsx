@@ -12,6 +12,7 @@ import { Point, LineString } from 'ol/geom';
 import type { User, LocationByDate, RouteItem, Alert } from '@/types';
 import { isEmpty } from 'lodash';
 import { message } from 'antd';
+import styles from '@/styles/MapComponent.module.css';
 
 type MapComponentProps = {
   showAllPoints: boolean;
@@ -72,10 +73,25 @@ const MapComponent: FC<MapComponentProps> = ({
             userDateTimeMoment.getTimezoneOffset(),
         );
         let iconSrc = '/recorrido/verde.png';
-        if (minutesDiff > 240) {
-          iconSrc = '/recorrido/rojo.png';
-        } else if (minutesDiff > 5) {
-          iconSrc = '/recorrido/amarillo.png';
+        if (!user.hasAlert) {
+          if (minutesDiff > 240) {
+            iconSrc = '/recorrido/rojo.png';
+          } else if (minutesDiff > 5) {
+            iconSrc = '/recorrido/amarillo.png';
+          }
+        } else {
+          const sosDiv = document.createElement('div');
+          sosDiv.className = styles['sos-blink'];
+          const sosOverlay = new Overlay({
+            element: sosDiv,
+            position: fromLonLat([
+              lastlocation.longitude,
+              lastlocation.latitude,
+            ]),
+            positioning: 'center-center',
+          });
+          mapInstance.current?.addOverlay(sosOverlay);
+          return null;
         }
 
         const point = new Feature({
