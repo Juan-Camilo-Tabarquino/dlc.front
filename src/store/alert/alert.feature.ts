@@ -52,16 +52,16 @@ export const alertFeature = createSlice({
     builder.addMatcher(
       alertApiSlice.endpoints.changeAlertStatus.matchFulfilled,
       (state, action) => {
-        state.alerts = state.alerts.map((alert) =>
-          alert.id === action.payload.id
+        state.alerts = state.alerts.map((alert) => {
+          return alert.id === action.payload[0].id
             ? {
                 ...alert,
-                status: action.payload.status,
+                status: action.payload[0].status,
               }
-            : alert,
-        );
+            : alert;
+        });
         state.alertsNoRead = state.alertsNoRead.filter(
-          (alert) => alert.id !== action.payload.id,
+          (alert) => alert.id !== action.payload[0].id,
         );
       },
     );

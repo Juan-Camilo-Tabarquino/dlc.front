@@ -47,6 +47,7 @@ export type Company = {
   adress: string;
   logo: string;
   users: Partial<User>[];
+  monitoringTime: string[];
 };
 
 export type NewUser = User & {

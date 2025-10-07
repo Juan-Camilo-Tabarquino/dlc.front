@@ -1,9 +1,10 @@
 import InputText from '@/commons/InputComponents/Text';
+import TimePickerPropio from '@/commons/InputComponents/TimePicker';
 import { Company } from '@/types';
 import { Button, Col, Form, Row } from 'antd';
 import { useEffect } from 'react';
 
-const { useForm } = Form;
+const { useForm, Item } = Form;
 
 type CompanyFormProps = {
   initialValues: Partial<Company>;
@@ -33,6 +34,7 @@ export default function CompanyForm({
       onFinish={(data) => onSubmit(data, isEdit)}
       layout="vertical"
     >
+      <Item name="id" hidden />
       <Row gutter={16}>
         <Col span={12}>
           <InputText
@@ -130,6 +132,17 @@ export default function CompanyForm({
             inputProps={{
               style: { outlineColor: '#5D59E3', fontSize: '1em' },
               placeholder: 'Logo',
+            }}
+          />
+        </Col>
+        <Col span={12}>
+          <TimePickerPropio
+            name="monitoringTime"
+            label="Tiempo de monitoreo"
+            isRequired
+            timeRangePickerProps={{
+              format: 'HH:mm',
+              placeholder: ['Hora Inicio', 'Hora Fin'],
             }}
           />
         </Col>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Layout, Button, Space, Row, Flex, message } from 'antd';
-import { ArrowLeftOutlined } from '@ant-design/icons';
-import { FetchHistory, LastLocation, User } from '@/types';
+import { Layout, Button, Space, Row, Flex, message, notification } from 'antd';
+import { AlertTwoTone, ArrowLeftOutlined } from '@ant-design/icons';
+import { Alert, FetchHistory, LastLocation, User } from '@/types';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
 import HeaderComponent from '@/commons/header';
@@ -11,34 +11,57 @@ import {
   listLocationsPoint,
 } from '@/store/location/location.feature';
 import { selectAlert } from '@/store/alert/alert.feature';
-import { map } from 'lodash';
+// import { map } from 'lodash';
 import useUser from '../user/hooks/useUser';
 import BoxInfo from '../mapa/commons/boxInfo';
 import MapComponent from '../mapa/MapComponent';
 import useLocation from '../location/hooks/useLocation';
 import useAuth from '../auth/hooks/useAuth';
 import useAlert from '../alert/hooks/useAlert';
-import CardAlert from '../alert/CardAlert';
+// import CardAlert from '../alert/CardAlert';
 import ShowUser from '../user/siderComponent/showUser';
 import SelectedUser from '../user/siderComponent/selectedUser';
 import SelectTripHistory from '../user/siderComponent/showSelectTrip';
+import { TableAlerts } from '../alert/components/TableAlerts';
+import { useSocket } from '@/socket/useSocket';
+import { initSocket } from '@/socket/socket';
 
 const { Content, Sider, Footer } = Layout;
 
 const MainPage: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const { currentUser } = useSelector((state: RootState) => state.auth);
+  const { isAuthenticated, currentUser } = useSelector(
+    (state: RootState) => state.auth,
+  );
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      initSocket(currentUser.company.id);
+    }
+  }, [isAuthenticated, currentUser]);
+
+  useSocket<Alert>(
+    'alert',
+    (data) => {
+      notification.warning({
+        message: `Alerta de ${data.fullname}`,
+        description: data.date,
+        placement: 'bottomRight',
+        icon: <AlertTwoTone style={{ color: '#108ee9' }} />,
+      });
+    },
+    [currentUser],
+  );
   const {
     alertsNoRead,
     changeHistoryAlert,
     historyAlert,
     sctAlert,
-    alerts,
+    // alerts,
     showAlert,
   } = useAlert({
     currentUser,
   });
-
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -52,15 +75,12 @@ const MainPage: React.FC = () => {
   const { startLogout } = useAuth();
   const [showUsers, setShowUsers] = useState(true);
   const dispatch = useDispatch();
-
   const [siderWidth, setSiderWidth] = useState<number>(20);
-
   const filteredUsers = users.filter(
     (u) =>
       u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       u.cedula.toString().includes(searchTerm),
   );
-
   const onSubmit = async (data: FetchHistory) => {
     try {
       const firstDate = `${dayjs(data.recorridoI).format('YYYY-MM-DD')}T00:00:00Z`;
@@ -124,13 +144,14 @@ const MainPage: React.FC = () => {
   }, []);
 
   return (
-    <Layout>
+    <Layout style={{ height: '100%' }}>
       <HeaderComponent
         user={currentUser}
         onLogout={startLogout}
         alertsNoRead={alertsNoRead}
         showAlert={showAlert}
-        historyNotication={() => changeHistoryAlert(true)}
+        historyNotication={changeHistoryAlert}
+        historyAlert={historyAlert}
       />
       <Layout>
         <Sider
@@ -139,6 +160,7 @@ const MainPage: React.FC = () => {
             background: '#fff',
             overflow: 'auto',
             position: 'relative',
+            display: !historyAlert ? 'block' : 'none',
           }}
         >
           <Space
@@ -248,7 +270,7 @@ const MainPage: React.FC = () => {
                 )}
               </>
             )}
-            {historyAlert && (
+            {/* {historyAlert && (
               <>
                 {map(alerts, (u, index) => (
                   <div
@@ -280,7 +302,7 @@ const MainPage: React.FC = () => {
                   </div>
                 ))}
               </>
-            )}
+            )} */}
           </Space>
           <Flex
             style={{
@@ -357,7 +379,7 @@ const MainPage: React.FC = () => {
             })}
           </Flex>
         </Sider>
-        <Layout style={{ padding: '0 24px 0 24px', height: '92vh' }}>
+        {/* <Layout style={{ padding: '0 24px 0 24px', height: '92vh' }}>
           <Content
             style={{
               padding: 10,
@@ -379,7 +401,77 @@ const MainPage: React.FC = () => {
               showSelectAlert={showSelectAlert}
               selectAlert={sctAlert[0]}
             />
+            {historyAlert && <TableAlerts />}
           </Content>
+          <Footer
+            style={{
+              backgroundColor: '#F5F5F5',
+              padding: '0',
+              height: '3vh',
+              textAlign: 'center',
+            }}
+          >
+            <h1
+              style={{
+                color: '#001529',
+                fontSize: '1em',
+                fontWeight: 'lighter',
+                padding: '0.2vh',
+              }}
+            >
+              Desing by Ascent Software Solutions ©{new Date().getFullYear()}
+            </h1>
+          </Footer>
+        </Layout> */}
+
+        <Layout style={{ padding: '0 24px 0 24px', height: '100%' }}>
+          <Content
+            style={{
+              padding: 10,
+              margin: 0,
+              minHeight: 280,
+              height: '100%',
+              background: '#fff',
+              display: 'flex',
+              flexDirection: 'column',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '10px',
+                height: '100%',
+              }}
+            >
+              <div style={{ flex: historyAlert ? '0 0 60%' : '1 1 100%' }}>
+                <MapComponent
+                  selectedUserNow={selectedUser}
+                  showTripSubmit={showTripSubmit}
+                  users={users}
+                  showAllPoints={showAllPoints}
+                  showSelectTrip={showSelectTrip}
+                  locations={locationsByDate}
+                  searchDateTime={locationSelect}
+                  showSelectAlert={showSelectAlert}
+                  selectAlert={sctAlert[0]}
+                />
+              </div>
+              {historyAlert && (
+                <div
+                  style={{
+                    flex: '0 0 40%',
+                    overflowY: 'auto',
+                    height: '100%',
+                    paddingRight: '5px',
+                  }}
+                >
+                  <TableAlerts />
+                </div>
+              )}
+            </div>
+          </Content>
+
           <Footer
             style={{
               backgroundColor: '#F5F5F5',

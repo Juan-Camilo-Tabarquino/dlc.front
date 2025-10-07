@@ -4,12 +4,14 @@ import InputText from '@/commons/InputComponents/Text';
 import InputPassword from '@/commons/InputComponents/Password';
 import { useEffect } from 'react';
 import useAuth from '@/modules/auth/hooks/useAuth';
+import { useRouter } from 'next/router';
 
 const { useForm } = Form;
 
 export default function Login() {
   const [form] = useForm();
-  const { checkAuth, startLogin } = useAuth();
+  const { checkAuth, startLogin, isAuthenticated } = useAuth();
+  const { push } = useRouter();
 
   const onLogin = async ({
     password,
@@ -20,6 +22,12 @@ export default function Login() {
   }) => {
     await startLogin(username, password);
   };
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      push('/maps');
+    }
+  }, [isAuthenticated]);
 
   useEffect(() => {
     checkAuth();

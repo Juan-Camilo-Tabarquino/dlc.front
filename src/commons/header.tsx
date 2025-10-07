@@ -41,6 +41,7 @@ type HeaderComponentProps = {
     date: string;
   }) => void;
   historyNotication?: (b: boolean) => void;
+  historyAlert: boolean;
   // detailsNotication?: (b: boolean) => void;
 };
 
@@ -50,6 +51,7 @@ const HeaderComponent: FC<HeaderComponentProps> = ({
   alertsNoRead = [],
   showAlert,
   historyNotication,
+  historyAlert,
 }) => {
   const { push } = useRouter();
   const stylesButtons: CSSProperties = {
@@ -90,8 +92,9 @@ const HeaderComponent: FC<HeaderComponentProps> = ({
 
       {alertsNoRead?.length > 0 ? (
         alertsNoRead?.map((notif, index) => (
-          <div key={index}>
+          <div key={`${notif?.id}-${notif?.date}`}>
             <Menu.Item
+              key={`${notif?.id}-${notif?.date}`}
               style={{ padding: '1em' }}
               onClick={() =>
                 showAlert({
@@ -215,6 +218,22 @@ const HeaderComponent: FC<HeaderComponentProps> = ({
               </Row>
             </Col>
           )}
+          {historyAlert && (
+            <Col flex="1 1 auto">
+              <Row justify="start">
+                <Col span={6}>
+                  <Button
+                    type="default"
+                    size="large"
+                    style={stylesButtons}
+                    onClick={() => historyNotication?.(false)}
+                  >
+                    Usuarios
+                  </Button>
+                </Col>
+              </Row>
+            </Col>
+          )}
 
           <Col style={{ width: '200px', height: '100%' }}>
             <Row
@@ -227,7 +246,10 @@ const HeaderComponent: FC<HeaderComponentProps> = ({
               }}
             >
               {user?.role === 2 && (
-                <Dropdown overlay={notificationMenu} trigger={['click']}>
+                <Dropdown
+                  dropdownRender={() => notificationMenu}
+                  trigger={['click']}
+                >
                   <Badge count={alertsNoRead?.length} size="small">
                     <Button
                       type="text"
