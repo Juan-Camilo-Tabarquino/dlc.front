@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Layout, Button, Space, Row, Flex, message, notification } from 'antd';
 import { AlertTwoTone, ArrowLeftOutlined } from '@ant-design/icons';
 import { Alert, FetchHistory, LastLocation, User } from '@/types';
@@ -34,6 +34,8 @@ const MainPage: React.FC = () => {
     (state: RootState) => state.auth,
   );
 
+  const soundIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
   useEffect(() => {
     if (isAuthenticated) {
       initSocket(currentUser.company.id);
@@ -43,6 +45,20 @@ const MainPage: React.FC = () => {
   useSocket<Alert>(
     'alert',
     (data) => {
+      const playSound = () => {
+        const audio = new Audio('/sounds/notification.mp3');
+        audio.play().catch(() => {});
+      };
+
+      playSound();
+
+      if (soundIntervalRef.current) {
+        clearInterval(soundIntervalRef.current);
+      }
+      soundIntervalRef.current = setInterval(() => {
+        playSound();
+      }, 20000);
+
       notification.warning({
         message: `Alerta de ${data.fullname}`,
         description: data.date,
