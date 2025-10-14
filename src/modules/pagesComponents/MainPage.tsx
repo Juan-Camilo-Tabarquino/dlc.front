@@ -10,7 +10,7 @@ import {
   listLocationsByDate,
   listLocationsPoint,
 } from '@/store/location/location.feature';
-import { selectAlert } from '@/store/alert/alert.feature';
+import { addNewAlert, selectAlert } from '@/store/alert/alert.feature';
 // import { map } from 'lodash';
 import useUser from '../user/hooks/useUser';
 import BoxInfo from '../mapa/commons/boxInfo';
@@ -33,41 +33,8 @@ const MainPage: React.FC = () => {
   const { isAuthenticated, currentUser } = useSelector(
     (state: RootState) => state.auth,
   );
-
   const soundIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      initSocket(currentUser.company.id);
-    }
-  }, [isAuthenticated, currentUser]);
-
-  useSocket<Alert>(
-    'alert',
-    (data) => {
-      const playSound = () => {
-        const audio = new Audio('/sounds/notification.mp3');
-        audio.play().catch(() => {});
-      };
-
-      playSound();
-
-      if (soundIntervalRef.current) {
-        clearInterval(soundIntervalRef.current);
-      }
-      soundIntervalRef.current = setInterval(() => {
-        playSound();
-      }, 20000);
-
-      notification.warning({
-        message: `Alerta de ${data.fullname}`,
-        description: data.date,
-        placement: 'bottomRight',
-        icon: <AlertTwoTone style={{ color: '#108ee9' }} />,
-      });
-    },
-    [currentUser],
-  );
   const {
     alertsNoRead,
     changeHistoryAlert,
@@ -108,6 +75,40 @@ const MainPage: React.FC = () => {
       message.error(`Error fetching user last location: ${e}`);
     }
   };
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      initSocket(currentUser.company.id);
+    }
+  }, [isAuthenticated, currentUser]);
+
+  useSocket<Alert>(
+    'alert',
+    (data) => {
+      const playSound = () => {
+        const audio = new Audio('/sounds/notification.mp3');
+        audio.play().catch(() => {});
+      };
+      playSound();
+
+      dispatch(addNewAlert(data));
+      if (soundIntervalRef.current) {
+        clearInterval(soundIntervalRef.current);
+      }
+      soundIntervalRef.current = setInterval(() => {
+        playSound();
+      }, 20000);
+
+      notification.warning({
+        message: `Alerta de ${data.fullname}`,
+        description: data.date,
+        placement: 'bottomRight',
+        icon: <AlertTwoTone style={{ color: '#108ee9' }} />,
+      });
+    },
+    [currentUser],
+  );
+
   useEffect(() => {
     if (sctAlert.length > 0) {
       setShowSelectAlert(true);

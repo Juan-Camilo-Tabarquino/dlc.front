@@ -5,13 +5,13 @@ let socket: Socket | null = null;
 
 export const initSocket = (companyId: number) => {
   if (!socket) {
-    socket = io('https://dlcsas.com:3001', {
+    socket = io(process.env.NEXT_PUBLIC_BACKEND_URL, {
       query: { companyId },
       transports: ['websocket'],
     });
 
     socket.on('connect', () => {
-      console.log('✅ WebSocket conectado');
+      console.log('✅ WebSocket conectado', socket);
     });
 
     socket.on('disconnect', () => {
