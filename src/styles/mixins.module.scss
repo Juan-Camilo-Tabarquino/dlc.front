@@ -1,0 +1,11 @@
+@mixin scroll-thin {
+  &::-webkit-scrollbar {
+    width: 7px;
+    position: relative;
+    &-thumb {
+      background: #cfcfde;
+      border: solid #f4f4fa 1px;
+      border-radius: 10px;
+    }
+  }
+}

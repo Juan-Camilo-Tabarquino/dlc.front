@@ -28,7 +28,13 @@ interface InfoColProps {
   googleMapsUrl?: string;
 }
 
-const BoxInfo: FC<InfoColProps> = ({ span, imgSrc, title, text, googleMapsUrl }) => {
+const BoxInfo: FC<InfoColProps> = ({
+  span,
+  imgSrc,
+  title,
+  text,
+  googleMapsUrl,
+}) => {
   const Wrapper = googleMapsUrl ? 'a' : 'div';
 
   return (
@@ -39,7 +45,9 @@ const BoxInfo: FC<InfoColProps> = ({ span, imgSrc, title, text, googleMapsUrl })
         rel="noopener noreferrer"
         style={{ ...style, display: 'block' }}
       >
-        {imgSrc && <Image src={imgSrc} width={25} height={25} alt="icon" priority />}
+        {imgSrc && (
+          <Image src={imgSrc} width={25} height={25} alt="icon" priority />
+        )}
         <Title style={{ fontSize: '1em' }}>{title}</Title>
         <Title style={{ fontSize: '0.8em' }}>{text}</Title>
       </Wrapper>

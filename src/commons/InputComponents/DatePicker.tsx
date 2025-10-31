@@ -1,23 +1,18 @@
-import {
-  DatePicker,
-  DatePickerProps,
-  Form,
-  FormItemProps,
-} from 'antd';
+import { DatePicker, DatePickerProps, Form, FormItemProps } from 'antd';
 import type { ReactNode } from 'react';
 
 const { Item } = Form;
 
-  type PickerProps = {
-    name: string | string[],
-    label: ReactNode,
-    className?: string;
-    isRequired?: boolean,
-    noAsterix?: boolean,
-    requiredMessage?: string | JSX.Element,
-    formItemProps?: FormItemProps,
-    datePickerProps?: DatePickerProps,
-  };
+type PickerProps = {
+  name: string | string[];
+  label: ReactNode;
+  className?: string;
+  isRequired?: boolean;
+  noAsterix?: boolean;
+  requiredMessage?: string | JSX.Element;
+  formItemProps?: FormItemProps;
+  datePickerProps?: DatePickerProps;
+};
 
 function FormItem({
   name,
@@ -46,7 +41,13 @@ function FormItem({
         {...datePickerProps}
         disabledDate={disabledDate}
         style={{
-          background: datePickerProps?.readOnly ? 'rgba(0, 0, 0, 0.2)' : undefined, borderColor: datePickerProps?.readOnly ? 'rgba(0, 0, 0, 0.3)' : undefined, width: '100%',
+          background: datePickerProps?.readOnly
+            ? 'rgba(0, 0, 0, 0.2)'
+            : undefined,
+          borderColor: datePickerProps?.readOnly
+            ? 'rgba(0, 0, 0, 0.3)'
+            : undefined,
+          width: '100%',
         }}
       />
     </Item>
@@ -70,7 +71,9 @@ function DatePickerPropio({
         }}
       >
         {label}
-        {(props.isRequired && !noAsterix) && <span style={{ color: 'red' }}>*</span>}
+        {props.isRequired && !noAsterix && (
+          <span style={{ color: 'red' }}>*</span>
+        )}
       </div>
       <FormItem {...props} />
     </>

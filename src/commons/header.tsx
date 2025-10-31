@@ -1,4 +1,4 @@
-import { CSSProperties, FC, useEffect } from 'react';
+import { CSSProperties, FC } from 'react';
 import {
   Avatar,
   Button,
@@ -12,7 +12,6 @@ import {
   Menu,
   Badge,
   Divider,
-  message,
 } from 'antd';
 import {
   UserOutlined,
@@ -20,13 +19,10 @@ import {
   BellOutlined,
   ExclamationCircleFilled,
 } from '@ant-design/icons';
-import { User } from '@/types';
+import { Alert, User } from '@/types';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import useAlert from '@/modules/alert/hooks/useAlert';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/store/store';
 
 const { Header } = Layout;
 const { Paragraph, Text } = Typography;
@@ -34,26 +30,29 @@ const { Paragraph, Text } = Typography;
 type HeaderComponentProps = {
   user: User;
   onLogout: () => void;
+  alertsNoRead?: Alert[];
+  showAlert: ({
+    id,
+    iduser,
+    date,
+  }: {
+    id: number;
+    iduser: number;
+    date: string;
+  }) => void;
   historyNotication?: (b: boolean) => void;
-  detailsNotication?: (b: boolean) => void;
+  historyAlert: boolean;
+  // detailsNotication?: (b: boolean) => void;
 };
 
 const HeaderComponent: FC<HeaderComponentProps> = ({
   user,
   onLogout,
+  alertsNoRead = [],
+  showAlert,
   historyNotication,
-  detailsNotication,
+  historyAlert,
 }) => {
-  const {
-    fetchAlertById,
-    editAlertStatus,
-    fetchAlertNoRead,
-    notifyAlertMobile,
-    alertsNoRead,
-  } = useAlert();
-
-  const { currentUser } = useSelector((state: RootState) => state.auth);
-
   const { push } = useRouter();
   const stylesButtons: CSSProperties = {
     height: '100%',
@@ -76,34 +75,6 @@ const HeaderComponent: FC<HeaderComponentProps> = ({
     });
   };
 
-  const showAlert = async ({
-    id,
-    iduser,
-    date,
-  }: {
-    id: number;
-    iduser: number;
-    date: string;
-  }) => {
-    try {
-      await fetchAlertById(id);
-
-      detailsNotication?.(false);
-      await editAlertStatus(id, 2);
-      await notifyAlertMobile(iduser, date);
-    } catch (e) {
-      message.error(
-        `Error buscando la alerta: ${e instanceof Error ? e.message : JSON.stringify(e)}`,
-      );
-    }
-  };
-
-  useEffect(() => {
-    if (currentUser?.company?.id) {
-      fetchAlertNoRead(currentUser?.company?.id);
-    }
-  }, [currentUser]);
-
   const notificationMenu = (
     <Menu style={{ maxHeight: '30vh', overflowY: 'auto' }}>
       <Button
@@ -119,10 +90,11 @@ const HeaderComponent: FC<HeaderComponentProps> = ({
         Ver historial de alertas
       </Button>
 
-      {alertsNoRead.length > 0 ? (
-        alertsNoRead.map((notif, index) => (
-          <div key={index}>
+      {alertsNoRead?.length > 0 ? (
+        alertsNoRead?.map((notif, index) => (
+          <div key={`${notif?.id}-${notif?.date}`}>
             <Menu.Item
+              key={`${notif?.id}-${notif?.date}`}
               style={{ padding: '1em' }}
               onClick={() =>
                 showAlert({
@@ -246,6 +218,22 @@ const HeaderComponent: FC<HeaderComponentProps> = ({
               </Row>
             </Col>
           )}
+          {historyAlert && (
+            <Col flex="1 1 auto">
+              <Row justify="start">
+                <Col span={6}>
+                  <Button
+                    type="default"
+                    size="large"
+                    style={stylesButtons}
+                    onClick={() => historyNotication?.(false)}
+                  >
+                    Usuarios
+                  </Button>
+                </Col>
+              </Row>
+            </Col>
+          )}
 
           <Col style={{ width: '200px', height: '100%' }}>
             <Row
@@ -258,8 +246,11 @@ const HeaderComponent: FC<HeaderComponentProps> = ({
               }}
             >
               {user?.role === 2 && (
-                <Dropdown overlay={notificationMenu} trigger={['click']}>
-                  <Badge count={alertsNoRead.length} size="small">
+                <Dropdown
+                  dropdownRender={() => notificationMenu}
+                  trigger={['click']}
+                >
+                  <Badge count={alertsNoRead?.length} size="small">
                     <Button
                       type="text"
                       icon={<BellOutlined style={{ fontSize: '20px' }} />}

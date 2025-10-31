@@ -4,7 +4,7 @@ import { io, Socket } from 'socket.io-client';
 import { AlertTwoTone } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
-import { addNewAlert } from '@/store/alert/alertSlice';
+import { addNewAlert } from '@/store/alert/alert.feature';
 
 const WebSocketListener = () => {
   const { currentUser } = useSelector((state: RootState) => state.auth);

@@ -4,9 +4,9 @@ import type { Alert } from '@/types';
 import { ExclamationCircleFilled } from '@ant-design/icons';
 
 type CardAlertProps = {
-    alert: Alert;
-    onClick: (user: Alert) => void;
-}
+  alert: Alert;
+  onClick: (user: Alert) => void;
+};
 
 const CardAlert: React.FC<CardAlertProps> = ({ alert, onClick }) => {
   const status = alert?.status;
@@ -18,7 +18,6 @@ const CardAlert: React.FC<CardAlertProps> = ({ alert, onClick }) => {
   } else {
     color = '#599AEA';
   }
-  // eslint-disable-next-line no-shadow
   const getStatusLabel = (status: number) => {
     if (status === 0) return 'Enviado';
     if (status === 1) return 'Recibido';
@@ -29,22 +28,20 @@ const CardAlert: React.FC<CardAlertProps> = ({ alert, onClick }) => {
     <Card
       hoverable
       onClick={() => (alert?.date ? onClick(alert) : null)}
-      title={(
-
+      title={
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <Tooltip title={`${getStatusLabel(status)}`}>
             <ExclamationCircleFilled style={{ color }} />
           </Tooltip>
           <h5>{` ${alert?.fullname}`}</h5>
         </div>
-
-      )}
+      }
       id={alert?.id.toString()}
       style={{ marginBottom: '1vh' }}
     >
       <p>
         Fecha:
-        { alert?.date ? ` ${alert?.date.substring(0, 10)}` : ' Sin Información'}
+        {alert?.date ? ` ${alert?.date.substring(0, 10)}` : ' Sin Información'}
       </p>
       <p>
         Hora:
@@ -52,7 +49,7 @@ const CardAlert: React.FC<CardAlertProps> = ({ alert, onClick }) => {
       </p>
       <p>
         Estado:
-        { ` ${getStatusLabel(status)}`}
+        {` ${getStatusLabel(status)}`}
       </p>
     </Card>
   );

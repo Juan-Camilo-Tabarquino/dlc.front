@@ -29,9 +29,12 @@ const LocationMenu: FC<LocationMenuProps> = ({ locations, onTimeClick }) => {
   }));
 
   return (
-    <div style={{
-      minHeight: 100, overflow: 'auto', maxHeight: '30vh',
-    }}
+    <div
+      style={{
+        minHeight: 100,
+        overflow: 'auto',
+        maxHeight: '30vh',
+      }}
     >
       <Menu mode="inline" items={items} />
     </div>

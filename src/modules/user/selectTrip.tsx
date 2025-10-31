@@ -1,11 +1,7 @@
 import DatePickerPropio from '@/commons/InputComponents/DatePicker';
 import Select from '@/commons/InputComponents/Select';
-import type {
-  FetchHistory, LocationByDate, RouteItem, User,
-} from '@/types';
-import {
-  Button, Form, Typography,
-} from 'antd';
+import type { FetchHistory, LocationByDate, RouteItem, User } from '@/types';
+import { Button, Form, Typography } from 'antd';
 import { mapToSelectOption } from '@/utils/utils';
 import LocationMenu from './menuLocation';
 import useLocation from '../location/hooks/useLocation';
@@ -19,11 +15,7 @@ type SelectTripProps = {
   users: User[];
 };
 
-const SelectTrip = ({
-  users,
-  locations,
-  onSubmit,
-}: SelectTripProps) => {
+const SelectTrip = ({ users, locations, onSubmit }: SelectTripProps) => {
   const [form] = useForm();
   const { handleTimeClick } = useLocation();
 

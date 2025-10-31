@@ -1,10 +1,10 @@
 import Head from 'next/head';
 import withAuth from '@/modules/auth/withAuth';
-import WebSocketListener from '@/commons/web';
+// import WebSocketListener from '@/commons/web';
 import MainPage from '../modules/pagesComponents/MainPage';
 
 function Home() {
-  WebSocketListener();
+  // WebSocketListener();
   return (
     <>
       <Head>
