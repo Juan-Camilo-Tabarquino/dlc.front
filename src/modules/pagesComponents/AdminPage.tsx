@@ -34,6 +34,7 @@ const AdminPage: React.FC = () => {
           user={currentUser}
           onLogout={startLogout}
           showAlert={() => {}}
+          historyAlert={false}
         />
         <Layout>
           <Tabs
