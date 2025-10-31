@@ -1,21 +1,33 @@
-import {
-  Card, Col, Layout, Row, Button, Form,
-} from 'antd';
+import { Card, Col, Layout, Row, Button, Form } from 'antd';
 import { EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
 import InputText from '@/commons/InputComponents/Text';
 import InputPassword from '@/commons/InputComponents/Password';
 import { useEffect } from 'react';
 import useAuth from '@/modules/auth/hooks/useAuth';
+import { useRouter } from 'next/router';
 
 const { useForm } = Form;
 
 export default function Login() {
   const [form] = useForm();
-  const { checkAuth, startLogin } = useAuth();
+  const { checkAuth, startLogin, isAuthenticated } = useAuth();
+  const { push } = useRouter();
 
-  const onLogin = async ({ password, username }: { password: string, username: string }) => {
+  const onLogin = async ({
+    password,
+    username,
+  }: {
+    password: string;
+    username: string;
+  }) => {
     await startLogin(username, password);
   };
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      push('/maps');
+    }
+  }, [isAuthenticated]);
 
   useEffect(() => {
     checkAuth();
@@ -65,9 +77,13 @@ export default function Login() {
           xl={12}
         >
           <Card style={{ backgroundColor: 'transparent', border: 0 }}>
-            <h2 style={{
-              textAlign: 'center', lineHeight: '200%', fontSize: '2.5em', marginTop: '-20%',
-            }}
+            <h2
+              style={{
+                textAlign: 'center',
+                lineHeight: '200%',
+                fontSize: '2.5em',
+                marginTop: '-20%',
+              }}
             >
               INICIO DE SESIÓN
             </h2>
@@ -89,8 +105,8 @@ export default function Login() {
                 inputProps={{
                   style: { outlineColor: '#5D59E3', fontSize: '2em' },
                   placeholder: 'Ingrese su Contraseña',
-                  // eslint-disable-next-line react/no-unstable-nested-components
-                  iconRender: (visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />),
+                  iconRender: (visible) =>
+                    visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />,
                 }}
               />
               <Button

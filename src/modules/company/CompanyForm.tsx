@@ -1,17 +1,16 @@
 import InputText from '@/commons/InputComponents/Text';
+import TimePickerPropio from '@/commons/InputComponents/TimePicker';
 import { Company } from '@/types';
-import {
-  Button, Col, Form, Row,
-} from 'antd';
+import { Button, Col, Form, Row } from 'antd';
 import { useEffect } from 'react';
 
-const { useForm } = Form;
+const { useForm, Item } = Form;
 
 type CompanyFormProps = {
-    initialValues: Partial<Company>;
-    onSubmit: (data: Partial<Company>) => void;
-    isEdit: boolean;
-}
+  initialValues: Partial<Company>;
+  onSubmit: (data: Partial<Company>, isEdit: boolean) => void;
+  isEdit: boolean;
+};
 
 export default function CompanyForm({
   initialValues,
@@ -20,7 +19,8 @@ export default function CompanyForm({
 }: CompanyFormProps) {
   const [form] = useForm();
 
-  const isValidEmail = (str: string): boolean => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(str);
+  const isValidEmail = (str: string): boolean =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(str);
   const isValidLetters = (str: string): boolean => /^[a-zA-Z]+$/.test(str);
 
   useEffect(() => {
@@ -31,9 +31,10 @@ export default function CompanyForm({
     <Form
       form={form}
       initialValues={initialValues}
-      onFinish={onSubmit}
+      onFinish={(data) => onSubmit(data, isEdit)}
       layout="vertical"
     >
+      <Item name="id" hidden />
       <Row gutter={16}>
         <Col span={12}>
           <InputText
@@ -63,10 +64,16 @@ export default function CompanyForm({
                   validator: () => {
                     const nit = getFieldValue(['nit']) as string;
                     if (isValidLetters(nit)) {
-                      return Promise.reject(new Error('En el campo NIT sólo puede ir números'));
+                      return Promise.reject(
+                        new Error('En el campo NIT sólo puede ir números'),
+                      );
                     }
                     if (nit.length >= 15) {
-                      return Promise.reject(new Error('El campo NIT puede tener hasta 15 caracteres'));
+                      return Promise.reject(
+                        new Error(
+                          'El campo NIT puede tener hasta 15 caracteres',
+                        ),
+                      );
                     }
                     return Promise.resolve();
                   },
@@ -93,7 +100,9 @@ export default function CompanyForm({
                     const email = getFieldValue(['email']) as string;
 
                     if (!isValidEmail(email)) {
-                      return Promise.reject(new Error('El correo no es válido'));
+                      return Promise.reject(
+                        new Error('El correo no es válido'),
+                      );
                     }
                     return Promise.resolve();
                   },
@@ -126,12 +135,20 @@ export default function CompanyForm({
             }}
           />
         </Col>
+        <Col span={12}>
+          <TimePickerPropio
+            name="monitoringTime"
+            label="Tiempo de monitoreo"
+            isRequired
+            timeRangePickerProps={{
+              format: 'HH:mm',
+              placeholder: ['Hora Inicio', 'Hora Fin'],
+            }}
+          />
+        </Col>
       </Row>
       <Row justify="end">
-        <Button
-          type="primary"
-          htmlType="submit"
-        >
+        <Button type="primary" htmlType="submit">
           Guardar
         </Button>
       </Row>

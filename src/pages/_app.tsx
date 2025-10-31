@@ -1,4 +1,4 @@
-import '@/styles/globals.css';
+import '@/styles/globals.scss';
 import { Poppins } from 'next/font/google';
 import { AppProps } from 'next/app';
 import { Provider } from 'react-redux';
@@ -13,9 +13,9 @@ const poppins = Poppins({
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <ConfigProvider>
-      <AntdApp>
+      <AntdApp style={{ height: '100%' }}>
         <Provider store={store}>
-          <main className={poppins.className}>
+          <main className={poppins.className} style={{ height: '100%' }}>
             <Component {...pageProps} />
           </main>
         </Provider>

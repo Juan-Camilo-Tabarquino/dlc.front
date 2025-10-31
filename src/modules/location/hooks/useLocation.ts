@@ -1,26 +1,25 @@
-/* eslint-disable max-len */
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
-import { listLocationsByDate, listLocationsPoint } from '@/store/location/locationSlice';
-import axios from 'axios';
-import { BASE_URL } from '@/commons/constants';
+import { listLocationsPoint } from '@/store/location/location.feature';
 import { RouteItem } from '@/types';
-
-const { get } = axios;
+import { useLazyGetLocationHistoryByUserQuery } from '@/store/location/location.slice';
 
 export default function useLocation() {
-  const { locations, locationsByDate, locationSelect } = useSelector((state: RootState) => state.locations);
+  const { locations, locationsByDate, locationSelect } = useSelector(
+    (state: RootState) => state.locations,
+  );
+
+  const [trigger, { isLoading: isLoadigGetLocationHistoryByUser }] =
+    useLazyGetLocationHistoryByUserQuery();
 
   const dispatch = useDispatch();
 
-  const locationHistoryByUser = async (startDate: string, finalDate: string, userId: string) => {
-    try {
-      const res = await get(`${BASE_URL}/locations/historyByUser?start_date=${startDate}&final_date=${finalDate}&userId=${userId}`);
-      dispatch(listLocationsByDate(res.data));
-      dispatch(listLocationsPoint([]));
-    } catch (error) {
-      return error;
-    }
+  const locationHistoryByUser = async (
+    startDate: string,
+    finalDate: string,
+    userId: string,
+  ) => {
+    await trigger({ startDate, finalDate, userId });
   };
 
   const handleTimeClick = (routeItem: RouteItem) => {
@@ -33,5 +32,6 @@ export default function useLocation() {
     locationHistoryByUser,
     locationSelect,
     handleTimeClick,
+    isLoadigGetLocationHistoryByUser,
   };
 }

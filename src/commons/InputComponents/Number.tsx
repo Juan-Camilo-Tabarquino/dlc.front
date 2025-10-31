@@ -7,17 +7,16 @@ import {
 import type { ReactNode } from 'react';
 
 const { Item } = Form;
-
-  type InputNumberProps = {
-    name: string | string[],
-    label: ReactNode,
-    className?: string,
-    isRequired?: boolean,
-    noAsterix?: boolean,
-    requiredMessage?: string | JSX.Element,
-    formItemProps?: FormItemProps,
-    inputProps?: InputNumberPropsAntd,
-  };
+type InputNumberProps = {
+  name: string | string[];
+  label: ReactNode;
+  className?: string;
+  isRequired?: boolean;
+  noAsterix?: boolean;
+  requiredMessage?: string | JSX.Element;
+  formItemProps?: FormItemProps;
+  inputProps?: InputNumberPropsAntd;
+};
 
 function FormItem({
   name,
@@ -42,7 +41,9 @@ function FormItem({
         {...inputProps}
         size="large"
         style={{
-          width: '100%', background: inputProps?.readOnly ? 'rgba(0, 0, 0, 0.2)' : undefined, borderColor: inputProps?.readOnly ? 'rgba(0, 0, 0, 0.3)' : undefined,
+          width: '100%',
+          background: inputProps?.readOnly ? 'rgba(0, 0, 0, 0.2)' : undefined,
+          borderColor: inputProps?.readOnly ? 'rgba(0, 0, 0, 0.3)' : undefined,
         }}
       />
     </Item>
@@ -66,7 +67,9 @@ function InputNumber({
         }}
       >
         {label}
-        {(props.isRequired && !noAsterix) && <span style={{ color: 'red' }}>*</span>}
+        {props.isRequired && !noAsterix && (
+          <span style={{ color: 'red' }}>*</span>
+        )}
       </div>
       <FormItem {...props} />
     </>

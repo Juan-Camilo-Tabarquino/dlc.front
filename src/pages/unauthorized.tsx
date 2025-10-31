@@ -1,6 +1,4 @@
-import {
-  Button, Layout, Result,
-} from 'antd';
+import { Button, Layout, Result } from 'antd';
 import { useRouter } from 'next/router';
 
 export default function Unauthorized() {
@@ -26,14 +24,11 @@ export default function Unauthorized() {
         status="403"
         title="No tienes acceso a esta página"
         subTitle="Inicie sesión con un usuario autorizado para continuar"
-        extra={(
-          <Button
-            type="primary"
-            onClick={login}
-          >
+        extra={
+          <Button type="primary" onClick={login}>
             Iniciar sesión
           </Button>
-        )}
+        }
       />
     </Layout>
   );

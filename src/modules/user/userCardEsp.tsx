@@ -1,9 +1,9 @@
 import React from 'react';
+import { Card, Tooltip, Popconfirm, Switch } from 'antd';
 import {
-  Card, Tooltip, Popconfirm, Switch,
-} from 'antd';
-import {
-  EditOutlined, LockOutlined, ExclamationCircleOutlined,
+  EditOutlined,
+  LockOutlined,
+  ExclamationCircleOutlined,
 } from '@ant-design/icons';
 import Image from 'next/image';
 import { User } from '@/types';
@@ -27,8 +27,17 @@ const UserCardEsp: React.FC<UserCardEspProps> = ({
   const hasCompleteInfo = (lastlocation: Record<string, any>): boolean => {
     if (!lastlocation) return false;
 
-    const requiredFields = ['id', 'iduser', 'latitude', 'longitude', 'date', 'nomenclature'];
-    return requiredFields.every((field) => lastlocation[field] && lastlocation[field] !== '');
+    const requiredFields = [
+      'id',
+      'iduser',
+      'latitude',
+      'longitude',
+      'date',
+      'nomenclature',
+    ];
+    return requiredFields.every(
+      (field) => lastlocation[field] && lastlocation[field] !== '',
+    );
   };
 
   let color = '/recorrido/userGris.png';
@@ -38,7 +47,8 @@ const UserCardEsp: React.FC<UserCardEspProps> = ({
     const userDateTime = new Date(user.lastlocation.date);
     const now = new Date();
     const minutesDiff = Math.round(
-      (now.getTime() - userDateTime.getTime()) / (1000 * 60) - userDateTime.getTimezoneOffset(),
+      (now.getTime() - userDateTime.getTime()) / (1000 * 60) -
+        userDateTime.getTimezoneOffset(),
     );
 
     if (minutesDiff > 240) {
@@ -70,7 +80,7 @@ const UserCardEsp: React.FC<UserCardEspProps> = ({
           >
             <Switch
               checked={user.active}
-              onChange={() => { }}
+              onChange={() => {}}
               style={{
                 backgroundColor: user.active ? '#1890ff' : '#d9d9d9',
                 borderColor: user.active ? '#1890ff' : '#d9d9d9',
@@ -82,7 +92,7 @@ const UserCardEsp: React.FC<UserCardEspProps> = ({
       style={{ width: 300, height: 150 }}
     >
       <Meta
-        title={(
+        title={
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <Image
               src={color}
@@ -93,7 +103,7 @@ const UserCardEsp: React.FC<UserCardEspProps> = ({
             />
             {`${user.name} ${user.lastname}`}
           </div>
-        )}
+        }
         description={user?.company?.name || 'Sin Información'}
       />
     </Card>

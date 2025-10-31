@@ -1,15 +1,23 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
-  Card, Col,
-  Row, Input,
-  Button, Modal,
-  Pagination, Tooltip,
-  Switch, message,
-  Typography, Popconfirm,
+  Card,
+  Col,
+  Row,
+  Input,
+  Button,
+  Modal,
+  Pagination,
+  Tooltip,
+  Switch,
+  Typography,
+  Popconfirm,
   App,
 } from 'antd';
 import {
-  EditOutlined, UserOutlined, PlusOutlined, ExclamationCircleOutlined,
+  EditOutlined,
+  UserOutlined,
+  PlusOutlined,
+  ExclamationCircleOutlined,
 } from '@ant-design/icons';
 import useCompany from '@/modules/company/hooks/useCompany';
 import CompanyForm from '@/modules/company/CompanyForm';
@@ -24,21 +32,16 @@ const CompanyCards = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(9);
-  const { companies, fetchCompanies, activeCompany, addNewCompany, editCompany } = useCompany();
+  const { companies, onSubmit, handleActiveCompany } = useCompany();
   const [isEdit, setIsEdit] = useState<boolean>(false);
-  const [refreshTrigger, setRefreshTrigger] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<Company | object>({});
-
-  useEffect(() => {
-    fetchCompanies();
-  }, [refreshTrigger]);
 
   const handleSearch = (value: string) => {
     setSearchValue(value);
   };
 
-  const filteredCompanies = companies.filter(
-    (company) => company.name.toLowerCase().includes(searchValue.toLowerCase()),
+  const filteredCompanies = companies.filter((company) =>
+    company.name.toLowerCase().includes(searchValue.toLowerCase()),
   );
 
   const handleAddUser = () => {
@@ -59,35 +62,16 @@ const CompanyCards = () => {
     setSelectedCompany(company);
     setIsModalVisible(true);
   };
-  const onSubmit = async (data: Partial<Company>) => {
-    try {
-      if (isEdit) {
-        await editCompany({ ...selectedCompany, ...data } as Company);
-        message.success('La compañia se ha modificado exitosamente');
-      } else {
-        await addNewCompany(data);
-        message.success('La compañia se ha creado exitosamente');
-      }
-      setIsModalVisible(false);
-      setRefreshTrigger((prev) => !prev);
-    } catch (error) {
-      message.error('Error al crear la compañia');
-      return error;
-    } finally {
-      setIsEdit(false);
-      setSelectedCompany({});
-    }
-  };
 
   const handleConfirm = async (companyId: number) => {
-    try {
-      await activeCompany(companyId);
-      message.success('El estado de la compañía se actualizó correctamente');
-      setRefreshTrigger((prev) => !prev);
-    } catch (error) {
-      message.error('No fue posible actualizar el estado de la compañía');
-      return error;
-    }
+    handleActiveCompany(companyId);
+  };
+
+  const handleOnSubmit = async (data: Partial<Company>, isEdit: boolean) => {
+    onSubmit(data, isEdit);
+    setIsModalVisible(false);
+    setIsEdit(false);
+    setSelectedCompany({});
   };
   const paginatedCompany = filteredCompanies.slice(
     (currentPage - 1) * itemsPerPage,
@@ -114,9 +98,15 @@ const CompanyCards = () => {
               <Card
                 actions={[
                   <Tooltip key={company.id} title="Editar Compañía">
-                    <EditOutlined key="edit" onClick={() => handleEditClick(company)} />
+                    <EditOutlined
+                      key="edit"
+                      onClick={() => handleEditClick(company)}
+                    />
                   </Tooltip>,
-                  <Tooltip key={company.id} title="Deshabilitar/ habilitar compañía">
+                  <Tooltip
+                    key={company.id}
+                    title="Deshabilitar/ habilitar compañía"
+                  >
                     <Popconfirm
                       title="¿Estás seguro de cambiar el estado de esta compañía?"
                       icon={<ExclamationCircleOutlined />}
@@ -129,7 +119,9 @@ const CompanyCards = () => {
                         checked={company.active}
                         onChange={() => {}}
                         style={{
-                          backgroundColor: company.active ? '#1890ff' : '#d9d9d9',
+                          backgroundColor: company.active
+                            ? '#1890ff'
+                            : '#d9d9d9',
                           borderColor: company.active ? '#1890ff' : '#d9d9d9',
                         }}
                       />
@@ -180,7 +172,7 @@ const CompanyCards = () => {
         >
           <CompanyForm
             initialValues={selectedCompany}
-            onSubmit={onSubmit}
+            onSubmit={handleOnSubmit}
             isEdit={isEdit}
           />
         </Modal>

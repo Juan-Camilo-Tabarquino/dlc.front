@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { Layout, Button, Space, Input, Row, Flex, message } from 'antd';
-import { ArrowLeftOutlined, SearchOutlined } from '@ant-design/icons';
-import { FetchHistory, User } from '@/types';
+import React, { useEffect, useRef, useState } from 'react';
+import { Layout, Button, Space, Row, Flex, message, notification } from 'antd';
+import { AlertTwoTone, ArrowLeftOutlined } from '@ant-design/icons';
+import { Alert, FetchHistory, LastLocation, User } from '@/types';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
 import HeaderComponent from '@/commons/header';
@@ -9,69 +9,61 @@ import dayjs from 'dayjs';
 import {
   listLocationsByDate,
   listLocationsPoint,
-} from '@/store/location/locationSlice';
-import { selectAlert } from '@/store/alert/alertSlice';
-import { map } from 'lodash';
-import CardUser from '../user/CardUser';
+} from '@/store/location/location.feature';
+import { addNewAlert, selectAlert } from '@/store/alert/alert.feature';
+// import { map } from 'lodash';
 import useUser from '../user/hooks/useUser';
 import BoxInfo from '../mapa/commons/boxInfo';
 import MapComponent from '../mapa/MapComponent';
-import SelectTrip from '../user/selectTrip';
 import useLocation from '../location/hooks/useLocation';
 import useAuth from '../auth/hooks/useAuth';
 import useAlert from '../alert/hooks/useAlert';
-import CardAlert from '../alert/CardAlert';
+// import CardAlert from '../alert/CardAlert';
+import ShowUser from '../user/siderComponent/showUser';
+import SelectedUser from '../user/siderComponent/selectedUser';
+import SelectTripHistory from '../user/siderComponent/showSelectTrip';
+import { TableAlerts } from '../alert/components/TableAlerts';
+import { useSocket } from '@/socket/useSocket';
+import { initSocket } from '@/socket/socket';
 
 const { Content, Sider, Footer } = Layout;
 
 const MainPage: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const { isAuthenticated, currentUser } = useSelector(
+    (state: RootState) => state.auth,
+  );
+  const soundIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const [searchTerm, setSearchTerm] = useState('');
+  const {
+    alertsNoRead,
+    changeHistoryAlert,
+    historyAlert,
+    sctAlert,
+    // alerts,
+    showAlert,
+  } = useAlert({
+    currentUser,
+  });
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const [showAllPoints, setShowAllPoints] = useState(true);
   const [showTripSubmit, setshowTripSubmit] = useState(false);
-  const { users, fetchUsersWithLastLocation, fetchUsersWithLastLocationById } =
-    useUser();
+  const { users } = useUser();
   const { locationsByDate, locationSelect, locationHistoryByUser } =
     useLocation();
-  const { fetchAlert, alerts, sctAlert, changeHistoryAlert, historyAlert } =
-    useAlert();
   const [showSelectTrip, setShowSelectTrip] = useState(false);
   const [showSelectAlert, setShowSelectAlert] = useState(false);
-  const { currentUser } = useSelector((state: RootState) => state.auth);
   const { startLogout } = useAuth();
   const [showUsers, setShowUsers] = useState(true);
   const dispatch = useDispatch();
-
   const [siderWidth, setSiderWidth] = useState<number>(20);
-
   const filteredUsers = users.filter(
     (u) =>
       u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       u.cedula.toString().includes(searchTerm),
   );
-  const { fetchAlertById, editAlertStatus, notifyAlertMobile } = useAlert();
-  const showAlert = async ({
-    id,
-    iduser,
-    date,
-  }: {
-    id: number;
-    iduser: number;
-    date: string;
-  }) => {
-    try {
-      await fetchAlertById(id);
-      await editAlertStatus(id, 2);
-      await notifyAlertMobile(iduser, date);
-    } catch (e) {
-      message.error(
-        `Error buscando la alerta: ${e instanceof Error ? e.message : JSON.stringify(e)}`,
-      );
-    }
-  };
   const onSubmit = async (data: FetchHistory) => {
     try {
       const firstDate = `${dayjs(data.recorridoI).format('YYYY-MM-DD')}T00:00:00Z`;
@@ -83,6 +75,40 @@ const MainPage: React.FC = () => {
       message.error(`Error fetching user last location: ${e}`);
     }
   };
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      initSocket(currentUser.company.id);
+    }
+  }, [isAuthenticated, currentUser]);
+
+  useSocket<Alert>(
+    'alert',
+    (data) => {
+      const playSound = () => {
+        const audio = new Audio('/sounds/notification.mp3');
+        audio.play().catch(() => {});
+      };
+      playSound();
+
+      dispatch(addNewAlert(data));
+      if (soundIntervalRef.current) {
+        clearInterval(soundIntervalRef.current);
+      }
+      soundIntervalRef.current = setInterval(() => {
+        playSound();
+      }, 20000);
+
+      notification.warning({
+        message: `Alerta de ${data.fullname}`,
+        description: data.date,
+        placement: 'bottomRight',
+        icon: <AlertTwoTone style={{ color: '#108ee9' }} />,
+      });
+    },
+    [currentUser],
+  );
+
   useEffect(() => {
     if (sctAlert.length > 0) {
       setShowSelectAlert(true);
@@ -93,22 +119,15 @@ const MainPage: React.FC = () => {
   }, [showSelectAlert, showAllPoints, showSelectTrip, showUsers, sctAlert]);
 
   useEffect(() => {
-    if (currentUser?.company?.id) {
-      fetchAlert(currentUser?.company?.id);
-    }
-  }, []);
-
-  useEffect(() => {
     if (!showSelectTrip) {
       const fetchUsers = async () => {
         try {
           if (selectedUser && !showSelectAlert) {
-            const res = await fetchUsersWithLastLocationById(
-              Number(selectedUser.id),
-            );
-            setSelectedUser({ ...selectedUser, lastlocation: res });
-          } else {
-            await fetchUsersWithLastLocation(Number(currentUser.company?.id));
+            const res = users.find((u) => u.id === Number(selectedUser.id));
+            setSelectedUser({
+              ...selectedUser,
+              lastlocation: res?.lastlocation ?? ({} as LastLocation),
+            });
           }
         } catch (err) {
           setError('Failed to fetch users');
@@ -142,12 +161,14 @@ const MainPage: React.FC = () => {
   }, []);
 
   return (
-    <Layout>
+    <Layout style={{ height: '100%' }}>
       <HeaderComponent
         user={currentUser}
         onLogout={startLogout}
-        historyNotication={() => changeHistoryAlert(true)}
-        detailsNotication={() => changeHistoryAlert(false)}
+        alertsNoRead={alertsNoRead}
+        showAlert={showAlert}
+        historyNotication={changeHistoryAlert}
+        historyAlert={historyAlert}
       />
       <Layout>
         <Sider
@@ -156,6 +177,7 @@ const MainPage: React.FC = () => {
             background: '#fff',
             overflow: 'auto',
             position: 'relative',
+            display: !historyAlert ? 'block' : 'none',
           }}
         >
           <Space
@@ -168,131 +190,43 @@ const MainPage: React.FC = () => {
               paddingBottom: '30px',
             }}
           >
-            {!showSelectTrip &&
-              !selectedUser &&
-              !showSelectAlert &&
-              showUsers &&
-              !historyAlert && (
-                <>
-                  <Input
-                    placeholder="Buscar por nombre o cédula"
-                    height="10vh"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    style={{ marginBottom: '10px' }}
-                    prefix={<SearchOutlined />}
-                  />
-                  <div
-                    style={{
-                      background: '#fff',
-                      overflowY: 'auto',
-                      maxHeight: '70vh',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      padding: '3%',
-                    }}
-                  >
-                    {filteredUsers.map((u, index) => (
-                      <CardUser
-                        key={index}
-                        user={u}
-                        onClick={() => {
-                          setSelectedUser(u);
-                          setShowUsers(false);
-                          setShowAllPoints(false);
-                          setShowSelectAlert(false);
-                          changeHistoryAlert(false);
-                        }}
-                      />
-                    ))}
-                  </div>
-                </>
-              )}
-
-            {selectedUser &&
-              !showSelectTrip &&
-              !showUsers &&
-              !showSelectAlert &&
-              !historyAlert && (
-                <>
-                  <Button
-                    type="default"
-                    icon={<ArrowLeftOutlined />}
-                    onClick={() => {
-                      setShowAllPoints(true);
-                      setSelectedUser(null);
-                      setShowUsers(true);
-                      setShowSelectAlert(false);
-                      changeHistoryAlert(false);
-                    }}
-                  >
-                    Regresar
-                  </Button>
-                  {selectedUser && (
-                    <Row gutter={[8, 16]}>
-                      <BoxInfo
-                        span={12}
-                        title="Usuario"
-                        imgSrc="/usuario.png"
-                        text={selectedUser.username}
-                      />
-                      <BoxInfo
-                        span={12}
-                        title="Rumbo"
-                        imgSrc="/rumbo.png"
-                        text={selectedUser.lastlocation.course}
-                      />
-                      <BoxInfo
-                        span={12}
-                        title="Fecha (Ult.act)"
-                        imgSrc="/fecha.png"
-                        text={selectedUser.lastlocation.date?.substring(0, 10)}
-                      />
-                      <BoxInfo
-                        span={12}
-                        title="Hora (Ult.act)"
-                        imgSrc="/hora.png"
-                        text={selectedUser.lastlocation.date?.substring(11, 19)}
-                      />
-                      <BoxInfo
-                        span={12}
-                        title="Nomenclatura"
-                        imgSrc="/pin.png"
-                        text={selectedUser.lastlocation.nomenclature}
-                      />
-                      <BoxInfo
-                        span={12}
-                        title="Coordenadas"
-                        imgSrc="/coordenada.png"
-                        text={
-                          selectedUser.lastlocation.latitude &&
-                          selectedUser.lastlocation.longitude
-                            ? `${Number(selectedUser.lastlocation.latitude).toFixed(6)},
-                        ${Number(selectedUser.lastlocation.longitude).toFixed(6)}`
-                            : 'Coordenadas no disponibles'
-                        }
-                        googleMapsUrl={
-                          selectedUser.lastlocation.latitude &&
-                          selectedUser.lastlocation.longitude
-                            ? `https://www.google.com/maps/search/?api=1&query=${selectedUser.lastlocation.latitude},${selectedUser.lastlocation.longitude}`
-                            : '#'
-                        }
-                      />
-                    </Row>
-                  )}
-                </>
-              )}
-            {showSelectTrip &&
-              !selectedUser &&
-              !showUsers &&
-              !showSelectAlert &&
-              !historyAlert && (
-                <SelectTrip
-                  onSubmit={onSubmit}
-                  locations={locationsByDate}
-                  users={users}
-                />
-              )}
+            <ShowUser
+              showSelectTrip={showSelectTrip}
+              selectedUser={selectedUser}
+              showSelectAlert={showSelectAlert}
+              showUsers={showUsers}
+              historyAlert={historyAlert}
+              filteredUsers={filteredUsers}
+              setSelectedUser={setSelectedUser}
+              setShowUsers={setShowUsers}
+              setShowAllPoints={setShowAllPoints}
+              setShowSelectAlert={setShowSelectAlert}
+              changeHistoryAlert={changeHistoryAlert}
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+            />
+            <SelectedUser
+              selectedUser={selectedUser}
+              showSelectTrip={showSelectTrip}
+              showUsers={showUsers}
+              showSelectAlert={showSelectAlert}
+              historyAlert={historyAlert}
+              setSelectedUser={setSelectedUser}
+              setShowUsers={setShowUsers}
+              setShowAllPoints={setShowAllPoints}
+              setShowSelectAlert={setShowSelectAlert}
+              changeHistoryAlert={changeHistoryAlert}
+            />
+            <SelectTripHistory
+              showSelectTrip={showSelectTrip}
+              selectedUser={selectedUser}
+              showUsers={showUsers}
+              showSelectAlert={showSelectAlert}
+              historyAlert={historyAlert}
+              users={users}
+              locationsByDate={locationsByDate}
+              onSubmit={onSubmit}
+            />
             {showSelectAlert && (
               <>
                 <Button
@@ -353,7 +287,7 @@ const MainPage: React.FC = () => {
                 )}
               </>
             )}
-            {historyAlert && (
+            {/* {historyAlert && (
               <>
                 {map(alerts, (u, index) => (
                   <div
@@ -385,7 +319,7 @@ const MainPage: React.FC = () => {
                   </div>
                 ))}
               </>
-            )}
+            )} */}
           </Space>
           <Flex
             style={{
@@ -462,7 +396,7 @@ const MainPage: React.FC = () => {
             })}
           </Flex>
         </Sider>
-        <Layout style={{ padding: '0 24px 0 24px', height: '92vh' }}>
+        {/* <Layout style={{ padding: '0 24px 0 24px', height: '92vh' }}>
           <Content
             style={{
               padding: 10,
@@ -484,7 +418,77 @@ const MainPage: React.FC = () => {
               showSelectAlert={showSelectAlert}
               selectAlert={sctAlert[0]}
             />
+            {historyAlert && <TableAlerts />}
           </Content>
+          <Footer
+            style={{
+              backgroundColor: '#F5F5F5',
+              padding: '0',
+              height: '3vh',
+              textAlign: 'center',
+            }}
+          >
+            <h1
+              style={{
+                color: '#001529',
+                fontSize: '1em',
+                fontWeight: 'lighter',
+                padding: '0.2vh',
+              }}
+            >
+              Desing by Ascent Software Solutions ©{new Date().getFullYear()}
+            </h1>
+          </Footer>
+        </Layout> */}
+
+        <Layout style={{ padding: '0 24px 0 24px', height: '100%' }}>
+          <Content
+            style={{
+              padding: 10,
+              margin: 0,
+              minHeight: 280,
+              height: '100%',
+              background: '#fff',
+              display: 'flex',
+              flexDirection: 'column',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '10px',
+                height: '100%',
+              }}
+            >
+              <div style={{ flex: historyAlert ? '0 0 60%' : '1 1 100%' }}>
+                <MapComponent
+                  selectedUserNow={selectedUser}
+                  showTripSubmit={showTripSubmit}
+                  users={users}
+                  showAllPoints={showAllPoints}
+                  showSelectTrip={showSelectTrip}
+                  locations={locationsByDate}
+                  searchDateTime={locationSelect}
+                  showSelectAlert={showSelectAlert}
+                  selectAlert={sctAlert[0]}
+                />
+              </div>
+              {historyAlert && (
+                <div
+                  style={{
+                    flex: '0 0 40%',
+                    overflowY: 'auto',
+                    height: '100%',
+                    paddingRight: '5px',
+                  }}
+                >
+                  <TableAlerts />
+                </div>
+              )}
+            </div>
+          </Content>
+
           <Footer
             style={{
               backgroundColor: '#F5F5F5',
@@ -509,5 +513,4 @@ const MainPage: React.FC = () => {
     </Layout>
   );
 };
-
 export default MainPage;
