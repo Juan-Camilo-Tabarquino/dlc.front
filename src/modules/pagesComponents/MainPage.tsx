@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Layout, Button, Space, Row, Flex, message, notification } from 'antd';
 import { AlertTwoTone, ArrowLeftOutlined } from '@ant-design/icons';
-import { Alert, FetchHistory, LastLocation, User } from '@/types';
+import { Alert, FetchHistory, User } from '@/types';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
 import HeaderComponent from '@/commons/header';
@@ -42,6 +42,7 @@ const MainPage: React.FC = () => {
     sctAlert,
     // alerts,
     showAlert,
+    setAlert,
   } = useAlert({
     currentUser,
   });
@@ -50,7 +51,7 @@ const MainPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showAllPoints, setShowAllPoints] = useState(true);
   const [showTripSubmit, setshowTripSubmit] = useState(false);
-  const { users } = useUser();
+  const { users, getUsersByRole } = useUser();
   const { locationsByDate, locationSelect, locationHistoryByUser } =
     useLocation();
   const [showSelectTrip, setShowSelectTrip] = useState(false);
@@ -120,25 +121,22 @@ const MainPage: React.FC = () => {
 
   useEffect(() => {
     if (!showSelectTrip) {
-      const fetchUsers = async () => {
-        try {
-          if (selectedUser && !showSelectAlert) {
-            const res = users.find((u) => u.id === Number(selectedUser.id));
-            setSelectedUser({
-              ...selectedUser,
-              lastlocation: res?.lastlocation ?? ({} as LastLocation),
-            });
-          }
-        } catch (err) {
-          setError('Failed to fetch users');
-          return err;
-        }
-      };
-
-      fetchUsers();
-
+      // const fetchUsers = async () => {
+      //   try {
+      //     if (selectedUser && !showSelectAlert) {
+      //       const res = users.find((u) => u.id === Number(selectedUser.id));
+      //       setSelectedUser({
+      //         ...selectedUser,
+      //         lastlocation: res?.lastlocation ?? ({} as LastLocation),
+      //       });
+      //     }
+      //   } catch (err) {
+      //     setError('Failed to fetch users');
+      //     return err;
+      //   }
+      // };
       const intervalId = setInterval(() => {
-        fetchUsers();
+        getUsersByRole(currentUser.role);
       }, 60000);
 
       return () => clearInterval(intervalId);
@@ -167,7 +165,12 @@ const MainPage: React.FC = () => {
         onLogout={startLogout}
         alertsNoRead={alertsNoRead}
         showAlert={showAlert}
-        historyNotication={changeHistoryAlert}
+        historyNotication={() => {
+          changeHistoryAlert(!historyAlert);
+          setAlert([]);
+          setShowSelectAlert(false);
+          setShowAllPoints(true);
+        }}
         historyAlert={historyAlert}
       />
       <Layout>
@@ -483,7 +486,17 @@ const MainPage: React.FC = () => {
                     paddingRight: '5px',
                   }}
                 >
-                  <TableAlerts />
+                  <TableAlerts
+                    showAlert={(alert) => {
+                      setSelectedUser(null);
+                      showAlert({
+                        id: alert.id,
+                        iduser: alert.iduser,
+                        date: alert.date,
+                      });
+                      setShowAllPoints(false);
+                    }}
+                  />
                 </div>
               )}
             </div>

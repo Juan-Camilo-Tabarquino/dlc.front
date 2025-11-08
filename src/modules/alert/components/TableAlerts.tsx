@@ -1,4 +1,5 @@
 import { RootState } from '@/store/store';
+import { Alert } from '@/types';
 import { Table, Tag } from 'antd';
 import { useSelector } from 'react-redux';
 
@@ -51,7 +52,11 @@ const columns = [
   },
 ];
 
-export const TableAlerts = () => {
+export const TableAlerts = ({
+  showAlert,
+}: {
+  showAlert: (alert: Alert) => void;
+}) => {
   const { alerts } = useSelector((state: RootState) => state.alerts);
   const alertsToShow = alerts.map((a) => {
     const [date, time] = a.date.split(' ');
@@ -67,6 +72,14 @@ export const TableAlerts = () => {
       bordered
       dataSource={alertsToShow}
       columns={columns}
+      onRow={(record) => {
+        return {
+          onClick: () => {
+            showAlert(record);
+          },
+          style: { cursor: 'pointer' },
+        };
+      }}
       pagination={{ pageSize: 4 }}
     />
   );

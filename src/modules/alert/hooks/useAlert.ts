@@ -8,11 +8,11 @@ import {
   useLazyGetAlertsNoReadQuery,
   useLazyGetAlertsQuery,
 } from '@/store/alert/alert.slice';
-import { User } from '@/types';
+import { Alert, User } from '@/types';
 import { message } from 'antd';
 import { RootState } from '@/store/store';
 
-const { post, get } = axios;
+const { post } = axios;
 
 export default function useAlert({ currentUser }: { currentUser: User }) {
   const [historyAlert, setHistoryAlert] = useState(false);
@@ -21,6 +21,9 @@ export default function useAlert({ currentUser }: { currentUser: User }) {
   );
 
   const dispatch = useDispatch();
+  const setAlert = (alert: Alert[]) => {
+    dispatch(selectAlert(alert));
+  };
   // const fetchAlert = async (idCompany: number) => {
   //   try {
   //     const res = await get(`${BASE_URL}/alerts/alertsbycompany/${idCompany}`);
@@ -50,14 +53,13 @@ export default function useAlert({ currentUser }: { currentUser: User }) {
   //   }
   // };
 
-  const fetchAlertById = async (id: number) => {
-    try {
-      const res = await get(`${BASE_URL}/alerts/alertsbyid/${id}`);
-      dispatch(selectAlert(res.data));
-    } catch (error) {
-      return error;
+  const onSelectAlert = (id: number) => {
+    const alert = alerts.find((a) => a.id === id);
+    if (alert) {
+      setAlert([alert]);
     }
   };
+
   // const editAlertStatus = async (id: number, status: number) => {
   //   try {
   //     const res = await put(`${BASE_URL}/alerts/changestatus/${id}`, {
@@ -98,9 +100,9 @@ export default function useAlert({ currentUser }: { currentUser: User }) {
     date: string;
   }) => {
     try {
-      await fetchAlertById(id);
+      onSelectAlert(id);
       // detailsNotication?.(false);
-      changeAlertStatus({ id, status: 2 });
+      await changeAlertStatus({ id, status: 2 }).unwrap();
       await notifyAlertMobile(iduser, date);
     } catch (e) {
       message.error(
@@ -116,11 +118,12 @@ export default function useAlert({ currentUser }: { currentUser: User }) {
     changeAlertStatus,
     historyAlert,
     // fetchAlert,
-    fetchAlertById,
+    // fetchAlertById,
     // editAlertStatus,
     // fetchAlertNoRead,
     notifyAlertMobile,
     changeHistoryAlert,
     showAlert,
+    setAlert,
   };
 }

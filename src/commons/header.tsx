@@ -40,7 +40,7 @@ type HeaderComponentProps = {
     iduser: number;
     date: string;
   }) => void;
-  historyNotication?: (b: boolean) => void;
+  historyNotication?: () => void;
   historyAlert: boolean;
   // detailsNotication?: (b: boolean) => void;
 };
@@ -85,7 +85,7 @@ const HeaderComponent: FC<HeaderComponentProps> = ({
         }}
         onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#082946')}
         onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#6B7986')}
-        onClick={() => historyNotication?.(true)}
+        onClick={() => historyNotication?.()}
       >
         Ver historial de alertas
       </Button>
@@ -226,7 +226,7 @@ const HeaderComponent: FC<HeaderComponentProps> = ({
                     type="default"
                     size="large"
                     style={stylesButtons}
-                    onClick={() => historyNotication?.(false)}
+                    onClick={() => historyNotication?.()}
                   >
                     Usuarios
                   </Button>
