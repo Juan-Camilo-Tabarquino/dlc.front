@@ -59,12 +59,16 @@ export default function useUser() {
     message.success('El usuario se ha modificado exitosamente');
   };
 
-  useEffect(() => {
-    if (currentUser.role === 2) {
+  const getUsersByRole = async (role: number) => {
+    if (role === 2) {
       getUsersWLLByCompany(Number(currentUser.company.id));
       return;
     }
     getUsers();
+  };
+
+  useEffect(() => {
+    getUsersByRole(currentUser.role);
   }, [currentUser]);
 
   return {
@@ -79,6 +83,7 @@ export default function useUser() {
     editUser,
     editPasswordUser,
     activeUser,
+    getUsersByRole,
     // fetchUserById,
   };
 }
