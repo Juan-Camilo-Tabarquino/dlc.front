@@ -1,7 +1,7 @@
 import { BASE_URL } from '@/commons/constants';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { selectAlert } from '@/store/alert/alert.feature';
 import {
   useChangeAlertStatusMutation,
@@ -16,6 +16,7 @@ const { post } = axios;
 
 export default function useAlert({ currentUser }: { currentUser: User }) {
   const [historyAlert, setHistoryAlert] = useState(false);
+  const soundIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const { sctAlert, alertsNoRead, alerts } = useSelector(
     (state: RootState) => state.alerts,
   );
@@ -37,10 +38,49 @@ export default function useAlert({ currentUser }: { currentUser: User }) {
   const [triggerAlerts] = useLazyGetAlertsQuery();
   const [changeAlertStatus] = useChangeAlertStatusMutation();
 
+  const playSound = () => {
+    const audio = new Audio('/sounds/notification.mp3');
+    audio.play().catch(() => {});
+  };
+
+  // if (data.status !== 2) {
+  //   playSound();
+  //   if (soundIntervalRef.current) {
+  //     clearInterval(soundIntervalRef.current);
+  //   }
+  //   soundIntervalRef.current = setInterval(() => {
+  //     playSound();
+  //   }, 20000);
+  // }
+
   useEffect(() => {
     triggerAlerts(currentUser?.company?.id);
     triggerAlertsNoRead(currentUser?.company?.id);
   }, [currentUser]);
+
+  useEffect(() => {
+    if (alertsNoRead.length > 0) {
+      playSound();
+      if (soundIntervalRef.current) {
+        clearInterval(soundIntervalRef.current);
+      }
+      soundIntervalRef.current = setInterval(() => {
+        playSound();
+      }, 20000);
+    } else {
+      if (soundIntervalRef.current) {
+        clearInterval(soundIntervalRef.current);
+        soundIntervalRef.current = null;
+      }
+    }
+
+    return () => {
+      if (soundIntervalRef.current) {
+        clearInterval(soundIntervalRef.current);
+        soundIntervalRef.current = null;
+      }
+    };
+  }, [alertsNoRead]);
 
   // const fetchAlertNoRead = async (idCompany: number) => {
   //   try {
