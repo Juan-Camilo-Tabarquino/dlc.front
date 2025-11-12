@@ -72,6 +72,7 @@ const CardUser: React.FC<CardUserProps> = ({ user, onClick }) => {
         backgroundColor: haveLastLocation ? undefined : '#DAE0E0',
         marginBottom: '1vh',
       }}
+      size="small"
     >
       <p>
         Ult.act:
@@ -85,6 +86,7 @@ const CardUser: React.FC<CardUserProps> = ({ user, onClick }) => {
           ? ` ${lastLocationDate.substring(11, 16)}`
           : ' Sin Información'}
       </p>
+      <p>Version Mobile: Sin Información</p>
     </Card>
   );
 };

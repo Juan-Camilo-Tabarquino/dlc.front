@@ -1,6 +1,6 @@
 import { RootState } from '@/store/store';
 import { Alert } from '@/types';
-import { Table, Tag } from 'antd';
+import { ConfigProvider, Table, Tag } from 'antd';
 import { useSelector } from 'react-redux';
 
 export enum AlertStatus {
@@ -46,7 +46,7 @@ const columns = [
     },
   },
   {
-    title: 'Descripcion',
+    title: 'Tipo Alerta',
     dataIndex: 'message',
     key: 'message',
   },
@@ -68,19 +68,35 @@ export const TableAlerts = ({
     };
   });
   return (
-    <Table
-      bordered
-      dataSource={alertsToShow}
-      columns={columns}
-      onRow={(record) => {
-        return {
-          onClick: () => {
-            showAlert(record);
+    <ConfigProvider
+      theme={{
+        components: {
+          Table: {
+            cellPaddingBlockSM: 4,
           },
-          style: { cursor: 'pointer' },
-        };
+        },
       }}
-      pagination={{ pageSize: 4 }}
-    />
+    >
+      <Table
+        bordered
+        dataSource={alertsToShow}
+        columns={columns}
+        onRow={(record) => {
+          return {
+            onClick: () => {
+              showAlert(record);
+            },
+            style: { cursor: 'pointer' },
+          };
+        }}
+        pagination={{
+          pageSize: 7,
+          hideOnSinglePage: true,
+          pageSizeOptions: [],
+          size: 'small',
+        }}
+        size="small"
+      />
+    </ConfigProvider>
   );
 };
