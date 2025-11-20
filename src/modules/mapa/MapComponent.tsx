@@ -42,6 +42,10 @@ const MapComponent: FC<MapComponentProps> = ({
   const overlayRef = useRef<Overlay | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const vectorLayerRef = useRef<VectorLayer<any> | null>(null);
+  const sosOverlaysRef = useRef<globalThis.Map<number, Overlay>>(
+    new globalThis.Map(),
+  );
+
   const showPointsOnMap = (usersToShow: User[]) => {
     if (!mapInstance.current) {
       return;
@@ -74,6 +78,12 @@ const MapComponent: FC<MapComponentProps> = ({
         );
         let iconSrc = '/recorrido/verde.png';
         if (!user.hasAlert) {
+          const previousOverlay = sosOverlaysRef.current.get(user.id);
+          if (previousOverlay) {
+            mapInstance.current?.removeOverlay(previousOverlay);
+            sosOverlaysRef.current.delete(user.id);
+          }
+
           if (minutesDiff > 240) {
             iconSrc = '/recorrido/rojo.png';
           } else if (minutesDiff > 5) {
@@ -91,7 +101,27 @@ const MapComponent: FC<MapComponentProps> = ({
             positioning: 'center-center',
           });
           mapInstance.current?.addOverlay(sosOverlay);
-          return null;
+
+          sosOverlaysRef.current.set(user.id, sosOverlay);
+
+          const point = new Feature({
+            geometry: new Point(
+              fromLonLat([lastlocation.longitude, lastlocation.latitude]),
+            ),
+          });
+
+          point.set('user', user);
+
+          point.setStyle(
+            new Style({
+              image: new Icon({
+                src: '/recorrido/rojo.png',
+                scale: 0.3,
+              }),
+            }),
+          );
+
+          return point;
         }
 
         const point = new Feature({
