@@ -76,22 +76,17 @@ const MapComponent: FC<MapComponentProps> = ({
           (nowMoment.getTime() - userDateTimeMoment.getTime()) / (1000 * 60) -
             userDateTimeMoment.getTimezoneOffset(),
         );
-        let iconSrc = '/recorrido/verde.png';
-        if (!user.hasAlert) {
-          const previousOverlay = sosOverlaysRef.current.get(user.id);
-          if (previousOverlay) {
-            mapInstance.current?.removeOverlay(previousOverlay);
-            sosOverlaysRef.current.delete(user.id);
-          }
 
-          if (minutesDiff > 240) {
-            iconSrc = '/recorrido/rojo.png';
-          } else if (minutesDiff > 5) {
-            iconSrc = '/recorrido/amarillo.png';
-          }
-        } else {
+        const previousOverlay = sosOverlaysRef.current.get(user.id);
+        if (previousOverlay) {
+          mapInstance.current?.removeOverlay(previousOverlay);
+          sosOverlaysRef.current.delete(user.id);
+        }
+
+        if (user.hasAlert) {
           const sosDiv = document.createElement('div');
           sosDiv.className = styles['sos-blink'];
+
           const sosOverlay = new Overlay({
             element: sosDiv,
             position: fromLonLat([
@@ -100,8 +95,8 @@ const MapComponent: FC<MapComponentProps> = ({
             ]),
             positioning: 'center-center',
           });
-          mapInstance.current?.addOverlay(sosOverlay);
 
+          mapInstance.current?.addOverlay(sosOverlay);
           sosOverlaysRef.current.set(user.id, sosOverlay);
 
           const point = new Feature({
@@ -111,7 +106,6 @@ const MapComponent: FC<MapComponentProps> = ({
           });
 
           point.set('user', user);
-
           point.setStyle(
             new Style({
               image: new Icon({
@@ -124,11 +118,20 @@ const MapComponent: FC<MapComponentProps> = ({
           return point;
         }
 
+        let iconSrc = '/recorrido/verde.png';
+
+        if (minutesDiff > 240) {
+          iconSrc = '/recorrido/rojo.png';
+        } else if (minutesDiff > 5) {
+          iconSrc = '/recorrido/amarillo.png';
+        }
+
         const point = new Feature({
           geometry: new Point(
             fromLonLat([lastlocation.longitude, lastlocation.latitude]),
           ),
         });
+
         point.set('user', user);
         point.setStyle(
           new Style({
